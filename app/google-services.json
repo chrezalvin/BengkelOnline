@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "141488188687",
+    "project_id": "bengkel-online-e354c",
+    "storage_bucket": "bengkel-online-e354c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141488188687:android:d7450959d76a67f9b5a27a",
+        "android_client_info": {
+          "package_name": "id.ac.umn.chrealvin.finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBEQSnPLmX2TCnkQe7Nf9YYIwL2qWBwd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141488188687:android:b41d022039450979b5a27a",
+        "android_client_info": {
+          "package_name": "id.ac.umn.kevinsorensen.bengkelonline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBEQSnPLmX2TCnkQe7Nf9YYIwL2qWBwd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
