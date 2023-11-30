@@ -1,18 +1,14 @@
 package id.ac.umn.kevinsorensen.bengkelonline
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -38,15 +34,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.load.resource.bitmap.TransformationUtils
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.controller.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.controller.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.API.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.API.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
-import id.ac.umn.kevinsorensen.bengkelonline.views.ProfilePage
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 class ProfileActivity : ComponentActivity() {

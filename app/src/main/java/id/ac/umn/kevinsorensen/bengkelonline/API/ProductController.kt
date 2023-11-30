@@ -1,10 +1,9 @@
-package id.ac.umn.kevinsorensen.bengkelonline.controller
+package id.ac.umn.kevinsorensen.bengkelonline.API
 
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Vendor
 
 class ProductController(val database: FirebaseFirestore) {
     fun addProduct(product: Product, callback: (Boolean) -> Unit): Unit  {

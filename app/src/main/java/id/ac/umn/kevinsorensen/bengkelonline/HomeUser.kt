@@ -7,8 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,9 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,11 +54,10 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.controller.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.controller.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.controller.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.API.ProductController
+import id.ac.umn.kevinsorensen.bengkelonline.API.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.API.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 
 sealed class BottomNavItem (
     var icon: Int,
