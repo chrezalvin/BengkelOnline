@@ -76,7 +76,7 @@ fun LoginActivity(
 @Composable
 fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     val loginState by loginViewModel.uiState.collectAsState();
-    val tabs = listOf("User", "Bengkel")
+    val tabs = listOf("User")
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,7 +92,7 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
         ) {
             tabs.forEachIndexed {
                 index, title ->
-                    Tab(text = { Text(title) },
+                    Tab(text = { Text(title, style = TextStyle(fontSize = 16.sp)) },
                         selected = loginState.pageIndex == index,
                         onClick = {
                             loginViewModel.changePage(index)
@@ -112,8 +112,9 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
                 updateEmailOrUsername = { loginViewModel.updateEmailOrUsername(it) },
                 updatePassword = { loginViewModel.updatePassword(it) }
             )
-
+            /*
             1 -> LoginMerchant()
+             */
         }
     }
 }
@@ -272,6 +273,13 @@ fun LoginUser(
                 fontWeight = FontWeight.Bold
             )
         }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Log in as Merchant",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF0000FF) // Custom color with RGB values (Blue in this case)
+        )
     }
 }
 
@@ -400,11 +408,7 @@ fun LoginMerchant() {
                 Color.Blue
             )
         ) {
-            Text(
-                text = "Log in",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+
         }
     }
 }
