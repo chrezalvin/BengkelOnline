@@ -83,23 +83,10 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 120.dp)
-            .height(300.dp)
+            .padding(top = 100.dp)
+            .height(400.dp)
             .background(Color.White)
     ) {
-        TabRow (
-            selectedTabIndex = loginState.pageIndex
-        ) {
-            tabs.forEachIndexed {
-                index, title ->
-                    Tab(text = { Text(title, style = TextStyle(fontSize = 16.sp)) },
-                        selected = loginState.pageIndex == index,
-                        onClick = {
-                            loginViewModel.changePage(index)
-                        }
-                    )
-            }
-        }
         when (loginState.pageIndex) {
             0 -> LoginUser(
                 errorMessage = loginState.error,
@@ -273,12 +260,19 @@ fun LoginUser(
                 fontWeight = FontWeight.Bold
             )
         }
-        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
-            text = "Log in as Merchant",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF0000FF) // Custom color with RGB values (Blue in this case)
+            text = "Forgot Password",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray
+        )
+
+        Text(
+            text = "Register",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray
         )
     }
 }
