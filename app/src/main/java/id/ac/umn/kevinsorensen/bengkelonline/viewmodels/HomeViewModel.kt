@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
+import com.google.firebase.storage.ktx.storage
+import id.ac.umn.kevinsorensen.bengkelonline.myapi.ProductController
+import id.ac.umn.kevinsorensen.bengkelonline.myapi.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.myapi.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +29,7 @@ class HomeViewModel(profileId: String): ViewModel(){
     val uiState = _uiState.asStateFlow();
 
     private val productController = ProductController(Firebase.firestore);
+    private val resourceCollector = ResourceCollector(Firebase.storage);
     private val userController = UserController(Firebase);
 
     init {
@@ -36,7 +39,7 @@ class HomeViewModel(profileId: String): ViewModel(){
             }
         }
 
-        userController.getProfilePhoto(profileId){ uri ->
+        resourceCollector.getProfilePhoto(profileId){ uri ->
             _uiState.update {
                 it.copy(profilePhoto = uri);
             }

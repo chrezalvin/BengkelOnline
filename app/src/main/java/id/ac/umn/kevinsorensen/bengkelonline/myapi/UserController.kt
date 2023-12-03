@@ -1,6 +1,5 @@
-package id.ac.umn.kevinsorensen.bengkelonline.api
+package id.ac.umn.kevinsorensen.bengkelonline.myapi
 
-import android.net.Uri
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Filter
@@ -134,6 +133,7 @@ class UserController(private val database: Firebase){
             .addOnFailureListener{
                 throw it;
             }
+
     }
 
     private fun dataValidation(document: DocumentSnapshot): User {
@@ -151,7 +151,7 @@ class UserController(private val database: Firebase){
         // nullable string or object
         var address = document.get("address");
 
-        if(address != null){
+        /*if(address != null){
             if(address is Map<*, *>){
                 val lat = address["lat"];
                 val long = address["long"];
@@ -174,8 +174,8 @@ class UserController(private val database: Firebase){
                     if(lat is Number && long is Number){
                         address = Address(
                             addressName as String,
-                            lat.toFloat(),
-                            long.toFloat(),
+                            lat as Float,
+                            long as Float,
                             desc as String,
                         )
                     }
@@ -185,7 +185,7 @@ class UserController(private val database: Firebase){
             }
             else
                 throw Exception("Error on reading address data");
-        }
+        }*/
 
         return User(
             id,
@@ -203,11 +203,11 @@ class UserController(private val database: Firebase){
 
     }
 
-    fun getProfilePhoto(profile: String, onSuccess: (Uri) -> Unit){
-        ResourceCollector(storage).getProfilePhoto(profile){
-            onSuccess(it);
-        }
-    }
+//    fun getProfilePhoto(profile: String, onSuccess: (Uri) -> Unit){
+//        ResourceCollector(storage).getProfilePhoto(profile){
+//            onSuccess(it);
+//        }
+//    }
 
     companion object {
         const val COLLECTION_NAME = "users"

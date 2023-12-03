@@ -125,12 +125,13 @@ fun UserContent(user: User, imageUrl: String){
                 .height(200.dp)
                 .width(200.dp)
                 .clip(CircleShape)
-                .padding(0.dp, 10.dp)
-        )
-        // h1 bold
-        Text(text = user.username, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(text = user.email)
-        Text(text = user.phoneNumber ?: "")
+                .padding(0.dp, 10.dp),
+        ) {
+            // h1 bold
+            Text(text = user.username, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = user.email)
+            Text(text = user.phoneNumber ?: "")
+        }
     }
 }
 

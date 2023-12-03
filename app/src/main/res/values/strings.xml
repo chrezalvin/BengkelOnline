@@ -11,4 +11,5 @@
     <string name="requirement_digit" />
     <string name="requirement_characters" />
     <string name="placeholder_search">Search</string>
+    <string name="title_activity_register">RegisterActivity</string>
 </resources>

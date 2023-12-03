@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline.api
+package id.ac.umn.kevinsorensen.bengkelonline.myapi
 
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
@@ -73,6 +73,7 @@ class ProductController(private val database: FirebaseFirestore) {
             }
             .addOnFailureListener{
                 throw it;
+
             }
     }
 

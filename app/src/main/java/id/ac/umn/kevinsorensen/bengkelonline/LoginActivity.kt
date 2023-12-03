@@ -85,6 +85,7 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     val loginState by loginViewModel.uiState.collectAsState();
     val tabs = listOf("User")
     val navController = rememberNavController()
+    val context = LocalContext.current;
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,7 +98,10 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     ) {
         when (loginState.pageIndex) {
             0 -> LoginUser(
-                onRegisterUser = RegisterUser(),
+                onRegisterUser = {
+                    val intent = Intent(context, RegisterActivity::class.java);
+                    context.startActivity(intent);
+                },
                 navController = navController,
                 errorMessage = loginState.error,
                 user = loginState.user,
@@ -128,10 +132,10 @@ fun LoginUser(
     updatePassword: (String) -> Unit,
     togglePasswordVisibility: () -> Unit,
     onLogin: () -> Unit,
-    onRegisterUser: RegisterUser,
+    onRegisterUser: () -> Unit,
     navController: NavController
 ) {
-    // placeholder for real error, don't use toast
+    // placeholder for real error, don't use toast as it will be called everytime it recompose
     if(errorMessage.isNotEmpty()){
         Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
     }
@@ -291,14 +295,14 @@ fun LoginUser(
                 .height(50.dp)
                 .width(200.dp),
             onClick = {
-                onRegisterUser
+                onRegisterUser()
             },
             colors = ButtonDefaults.buttonColors(
                 Color.Blue
             )
         ) {
             Text(
-                text = "Log in",
+                text = "Register",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

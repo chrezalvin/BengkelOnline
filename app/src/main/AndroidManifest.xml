@@ -16,9 +16,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BengkelOnline"
         tools:targetApi="31">
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.BengkelOnline" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyATn6B2w3hp-l6oFZU7bBiUZqY9Lzs-1PE" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,9 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeUser"></activity>
-        <activity android:name=".HomeMerchant"></activity>
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".HomeUser" />
+        <activity android:name=".HomeMerchant" />
+        <activity android:name=".ProfileActivity" />
     </application>
 
 </manifest>

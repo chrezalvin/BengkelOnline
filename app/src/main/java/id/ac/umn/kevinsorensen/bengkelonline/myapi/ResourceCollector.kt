@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline.api
+package id.ac.umn.kevinsorensen.bengkelonline.myapi
 
 import android.net.Uri
 import android.util.Log
@@ -10,6 +10,7 @@ class ResourceCollector(private val database: FirebaseStorage){
             Log.d(TAG, "uri: $it");
             callback(it);
         }
+
     }
 
     private fun putIntoStorage(path: String, fileName: String, callback: (Boolean) -> Unit){
