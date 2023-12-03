@@ -124,8 +124,9 @@ fun TopNavigation2(activity: ComponentActivity) {
 fun UserContent(user: User, imageUrl: String){
     Column() {
         Row(
-            Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 50.dp)
         ) {
             GlideImage(
                 model = imageUrl,
@@ -134,30 +135,19 @@ fun UserContent(user: User, imageUrl: String){
                     .height(100.dp)
                     .width(100.dp)
                     .clip(CircleShape)
-                    .padding(0.dp, 10.dp)
+                    .padding(20.dp)
             )
             Column(
-                Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 10.dp)
+                ,
             ) {
-                Text(text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(text = user.email)
-                Text(text = user.phone)
+                Text(text = user.name, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Text(text = user.email, fontSize = 10.sp)
+                Text(text = user.phone, fontSize = 10.sp)
             }
         }
-    }
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Divider(
-            color = Color.Gray,
-            thickness = 2.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-        Text(text = "Content Below the Line")
     }
 }
 

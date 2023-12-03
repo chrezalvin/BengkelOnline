@@ -1,7 +1,9 @@
 package id.ac.umn.kevinsorensen.bengkelonline
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,11 +39,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -93,6 +97,7 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     ) {
         when (loginState.pageIndex) {
             0 -> LoginUser(
+                onRegisterUser = RegisterUser(),
                 navController = navController,
                 errorMessage = loginState.error,
                 user = loginState.user,
@@ -123,6 +128,7 @@ fun LoginUser(
     updatePassword: (String) -> Unit,
     togglePasswordVisibility: () -> Unit,
     onLogin: () -> Unit,
+    onRegisterUser: RegisterUser,
     navController: NavController
 ) {
     // placeholder for real error, don't use toast
@@ -148,6 +154,13 @@ fun LoginUser(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        Text(
+            text = "Sign In",
+            fontSize = 20.sp,
+            color = Color.Blue,
+            fontWeight = Bold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
         TextField (
             value = emailOrUsername,
             onValueChange = {
@@ -273,19 +286,41 @@ fun LoginUser(
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(20.dp))
-        Surface (
-            modifier = Modifier.clickable {
-                // Navigate to RegisterUser page on click
-                navController.navigate("registerUser")
-            }
+        val context = LocalContext.current
+        Button (
+            modifier = Modifier
+                .height(50.dp)
+                .width(200.dp),
+            onClick = {
+                onRegisterUser
+            },
+            colors = ButtonDefaults.buttonColors(
+                Color.Blue
+            )
         ) {
             Text(
-                text = "Register",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Gray
+                text = "Log in",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+@Composable
+fun RegisterText(navController: NavController) {
+    Surface(
+        modifier = Modifier.clickable {
+            // Navigate to RegisterUser page on click
+            navController.navigate("registerUser")
+        }
+    ) {
+        Text(
+            text = "Register",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray
+        )
     }
 }
 
