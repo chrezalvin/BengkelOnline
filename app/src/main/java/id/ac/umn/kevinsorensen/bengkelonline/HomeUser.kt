@@ -329,14 +329,16 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String) {
         },
         actions = {
                 IconButton(onClick = { expanded = !expanded }) {
+                    /*
                     GlideImage(model = profileUrl, contentDescription = username,
                         Modifier
                             .height(24.dp)
                             .width(24.dp))
-/*                    Icon (
+                     */
+                  Icon (
                         painter = painterResource(id = R.drawable.baseline_person_24),
                         contentDescription = null
-                    )*/
+                  )
                 }
 
                 DropdownMenu(

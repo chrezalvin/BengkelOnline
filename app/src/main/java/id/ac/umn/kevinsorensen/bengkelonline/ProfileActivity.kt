@@ -5,14 +5,18 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -117,23 +122,42 @@ fun TopNavigation2(activity: ComponentActivity) {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun UserContent(user: User, imageUrl: String){
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Column() {
+        Row(
+            Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            GlideImage(
+                model = imageUrl,
+                contentDescription = "photo profile",
+                modifier = Modifier
+                    .height(100.dp)
+                    .width(100.dp)
+                    .clip(CircleShape)
+                    .padding(0.dp, 10.dp)
+            )
+            Column(
+                Modifier.fillMaxSize(),
+            ) {
+                Text(text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = user.email)
+                Text(text = user.phone)
+            }
+        }
+    }
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        GlideImage(
-            model = imageUrl,
-            contentDescription = "photo profile",
+        Divider(
+            color = Color.Gray,
+            thickness = 2.dp,
             modifier = Modifier
-                .height(200.dp)
-                .width(200.dp)
-                .clip(CircleShape)
-                .padding(0.dp, 10.dp)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
-        // h1 bold
-        Text(text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(text = user.email)
-        Text(text = user.phone)
+        Text(text = "Content Below the Line")
     }
 }
 
