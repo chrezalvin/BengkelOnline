@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline
+package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
 import android.content.Intent
 import android.widget.Toast
@@ -19,8 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -37,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -45,8 +44,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import id.ac.umn.kevinsorensen.bengkelonline.views.merchant.HomeMerchant
+import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
+import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 
 @Composable
 fun LoginActivity(
@@ -148,6 +150,13 @@ fun LoginUser(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        Text(
+            text = "Sign In",
+            fontSize = 20.sp,
+            color = Color.Blue,
+            fontWeight = Bold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
         TextField (
             value = emailOrUsername,
             onValueChange = {
@@ -273,19 +282,41 @@ fun LoginUser(
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(20.dp))
-        Surface (
-            modifier = Modifier.clickable {
-                // Navigate to RegisterUser page on click
-                navController.navigate("registerUser")
-            }
+        val context = LocalContext.current
+        Button (
+            modifier = Modifier
+                .height(50.dp)
+                .width(200.dp),
+            onClick = {
+
+            },
+            colors = ButtonDefaults.buttonColors(
+                Color.Blue
+            )
         ) {
             Text(
-                text = "Register",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Gray
+                text = "Log in",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+@Composable
+fun RegisterText(navController: NavController) {
+    Surface(
+        modifier = Modifier.clickable {
+            // Navigate to RegisterUser page on click
+            navController.navigate("registerUser")
+        }
+    ) {
+        Text(
+            text = "Register",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Gray
+        )
     }
 }
 

@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline
+package id.ac.umn.kevinsorensen.bengkelonline.views.user
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable

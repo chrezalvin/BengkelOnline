@@ -1,10 +1,11 @@
-package id.ac.umn.kevinsorensen.bengkelonline
+package id.ac.umn.kevinsorensen.bengkelonline.views
 
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import id.ac.umn.kevinsorensen.bengkelonline.views.main.LoginActivity
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.P)

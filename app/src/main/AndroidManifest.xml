@@ -20,7 +20,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyATn6B2w3hp-l6oFZU7bBiUZqY9Lzs-1PE" />
         <activity
-            android:name=".MainActivity"
+            android:name=".views.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.BengkelOnline"
@@ -31,9 +31,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeUser"></activity>
-        <activity android:name=".HomeMerchant"></activity>
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".views.user.HomeUser"></activity>
+        <activity android:name=".views.merchant.HomeMerchant"></activity>
+        <activity android:name=".views.user.ProfileActivity"></activity>
     </application>
 
 </manifest>

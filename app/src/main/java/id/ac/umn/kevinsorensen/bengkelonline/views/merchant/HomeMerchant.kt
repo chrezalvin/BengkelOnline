@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline
+package id.ac.umn.kevinsorensen.bengkelonline.views.merchant
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
