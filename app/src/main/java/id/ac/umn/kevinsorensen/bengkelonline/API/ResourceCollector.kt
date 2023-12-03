@@ -1,10 +1,10 @@
-package id.ac.umn.kevinsorensen.bengkelonline.controller
+package id.ac.umn.kevinsorensen.bengkelonline.api
 
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.storage.FirebaseStorage
 
-class ResourceCollector(val database: FirebaseStorage){
+class ResourceCollector(private val database: FirebaseStorage){
     private fun getResourceUri(path: String, fileName: String, callback: (Uri) -> Unit){
         database.reference.child("$path$fileName").downloadUrl.addOnSuccessListener {
             Log.d(TAG, "uri: $it");
