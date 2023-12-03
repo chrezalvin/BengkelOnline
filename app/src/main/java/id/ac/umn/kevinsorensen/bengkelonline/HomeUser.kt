@@ -65,9 +65,9 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.API.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.API.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.API.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 
 sealed class BottomNavItem (
@@ -100,11 +100,13 @@ class HomeUser : ComponentActivity() {
         val profileUrl = intent.getStringExtra("profileUrl");
 
         setContent {
+
+
             var products by remember { mutableStateOf(listOf<Product>()) }
 
             val navController = rememberNavController()
-            val db = Firebase.firestore;
-            val productController = ProductController(db);
+            val db = Firebase;
+            val productController = ProductController(db.firestore);
             val userController = UserController(db);
 
             userController.getUser("admin", "admin"){
