@@ -4,9 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import id.ac.umn.kevinsorensen.bengkelonline.API.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +31,7 @@ class LoginViewModel: ViewModel() {
     var inputEmailOrUsername by mutableStateOf("")
         private set;
 
-    private val userController = UserController(Firebase.firestore);
+    private val userController = UserController(Firebase);
 
     init {
         resetInputs();
