@@ -73,17 +73,17 @@ sealed class BottomNavItem (
     var icon: Int,
     var route: String
 ) {
+    object Home :
+        BottomNavItem(
+            R.drawable.baseline_home_24, "home"
+        )
     object Maps :
             BottomNavItem(
-                R.drawable.maps, "maps"
-            )
-    object Home :
-            BottomNavItem(
-                R.drawable.home, "home"
+                R.drawable.baseline_location_on_24, "maps"
             )
     object Phone :
             BottomNavItem(
-                R.drawable.phone, "phone"
+                R.drawable.baseline_phone_24, "phone"
             )
 }
 
@@ -123,17 +123,6 @@ class HomeUser : ComponentActivity() {
                         navController = navController,
                         startDestination = BottomNavItem.Home.route,
                     ) {
-                        composable(BottomNavItem.Maps.route) {
-                            // Replace with your MapsScreen composable
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(bottom = 80.dp),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                HomeMaps()
-                            }
-                        }
                         composable(BottomNavItem.Home.route) {
                             // Replace with your HomeScreen composable
                             Surface(
@@ -155,6 +144,18 @@ class HomeUser : ComponentActivity() {
                                         itemProduct(it)
                                     }
                                 }
+                            }
+                        }
+                        composable(BottomNavItem.Maps.route) {
+                            // Replace with your MapsScreen composable
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = 80.dp),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                HomeMaps()
+                                Text("Maps")
                             }
                         }
                         composable(BottomNavItem.Phone.route) {

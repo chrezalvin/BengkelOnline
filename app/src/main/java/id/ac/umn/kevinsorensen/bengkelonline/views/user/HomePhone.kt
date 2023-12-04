@@ -35,8 +35,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import id.ac.umn.kevinsorensen.bengkelonline.R
 
 @Preview
@@ -65,13 +67,27 @@ fun HomePhone() {
     ) {
         bitmap = it
     }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
+        Text(
+            text = "Panggil Bengkel",
+            fontSize = 20.sp,
+            color = Color.Blue,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+    Spacer(modifier = Modifier.height(500.dp))
     Column (
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .padding(top = 80.dp)
     ) {
-        if (showDialog) {
             Row (
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -123,15 +139,14 @@ fun HomePhone() {
                         color = Color.White,
                         modifier = Modifier
                             .clickable {
-                                showDialog = true
+                                showDialog = false
                             }
                     )
                 }
             }
-        }
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -141,7 +156,33 @@ fun HomePhone() {
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .width(300.dp)
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Blue)
+                        .size(150.dp)
+                        .clickable { showDialog = false }
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Image(
+                    bitmap = bitmap?.asImageBitmap()!!,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Blue)
+                        .size(150.dp)
+                        .clickable { showDialog = false }
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Image(
+                    bitmap = bitmap?.asImageBitmap()!!,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.Blue)
@@ -151,10 +192,34 @@ fun HomePhone() {
             }
             else {
                 Image(
-                    painter = painterResource(id = R.drawable.baseline_image_24),
+                    painter = painterResource(id = R.drawable.baseline_add_24),
                     contentDescription = null,
                     modifier = Modifier
-                        .width(300.dp)
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Blue)
+                        .size(150.dp)
+                        .clickable { showDialog = false }
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Blue)
+                        .size(150.dp)
+                        .clickable { showDialog = false }
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.Blue)
@@ -162,6 +227,10 @@ fun HomePhone() {
                         .clickable { showDialog = false }
                 )
             }
+        }
+        Spacer(modifier = Modifier.height(1000.dp))
+        Column {
+            Text("Set Your Location")
         }
     }
 
