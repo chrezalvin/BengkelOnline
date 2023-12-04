@@ -127,6 +127,7 @@ fun LoginUser(
     onLogin: () -> Unit,
     navController: NavController
 ) {
+    val mContext = LocalContext.current
     // placeholder for real error, don't use toast
     if(errorMessage.isNotEmpty()){
         Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
@@ -260,7 +261,9 @@ fun LoginUser(
         Row {
             ClickableText(
                 text = AnnotatedString("Forgot Password"),
-                onClick = {},
+                onClick = {
+                    mContext.startActivity(Intent(mContext, ForgotPassActivity::class.java))
+                },
                 style = TextStyle(
                     color = Color.Gray,
                     // fontSize = 26.sp,
@@ -271,7 +274,9 @@ fun LoginUser(
             Spacer(modifier = Modifier.width(50.dp))
             ClickableText(
                 text = AnnotatedString("Log in As Merchant"),
-                onClick = {},
+                onClick = {
+                    mContext.startActivity(Intent(mContext, LoginMerchantActivity::class.java))
+                },
                 style = TextStyle(
                     color = Color.Gray,
                     // fontSize = 26.sp,
@@ -306,7 +311,7 @@ fun LoginUser(
             ClickableText(
                 text = AnnotatedString("Register"),
                 onClick = {
-                          
+                    mContext.startActivity(Intent(mContext, RegisterActivity::class.java))
                 },
                 style = TextStyle(
                     color = Color.Blue,

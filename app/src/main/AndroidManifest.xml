@@ -16,9 +16,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BengkelOnline"
         tools:targetApi="31">
+        <activity
+            android:name=".views.main.LoginMerchantActivity"
+            android:exported="false"
+            android:label="@string/title_activity_login_merchant"
+            android:theme="@style/Theme.BengkelOnline" />
+        <activity
+            android:name=".views.main.ForgotPassActivity"
+            android:exported="false"
+            android:label="@string/title_activity_forgot_pass"
+            android:theme="@style/Theme.BengkelOnline" />
+        <activity
+            android:name=".views.main.RegisterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.BengkelOnline" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyATn6B2w3hp-l6oFZU7bBiUZqY9Lzs-1PE" />
+
         <activity
             android:name=".views.MainActivity"
             android:exported="true"
@@ -31,9 +48,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.user.HomeUser"></activity>
-        <activity android:name=".views.merchant.HomeMerchant"></activity>
-        <activity android:name=".views.user.ProfileActivity"></activity>
+        <activity android:name=".views.user.HomeUser" />
+        <activity android:name=".views.merchant.HomeMerchant" />
+        <activity android:name=".views.user.ProfileActivity" />
     </application>
 
 </manifest>
