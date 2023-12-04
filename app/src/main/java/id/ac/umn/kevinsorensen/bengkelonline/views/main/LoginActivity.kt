@@ -298,6 +298,23 @@ fun LoginUser(
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
+        Row {
+            Text(
+                text = "New User?  ",
+                color = Color.Gray
+            )
+            ClickableText(
+                text = AnnotatedString("Register"),
+                onClick = {
+                          
+                },
+                style = TextStyle(
+                    color = Color.Blue,
+                    // fontSize = 26.sp,
+                    // fontFamily = FontFamily.Cursive
+                )
+            )
+        }
     }
 }
 
