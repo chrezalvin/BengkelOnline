@@ -152,7 +152,7 @@ fun LoginUser(
             .padding(top = 20.dp)
     ) {
         Text(
-            text = "Sign In",
+            text = "Login",
             fontSize = 20.sp,
             color = Color.Blue,
             fontWeight = Bold,
