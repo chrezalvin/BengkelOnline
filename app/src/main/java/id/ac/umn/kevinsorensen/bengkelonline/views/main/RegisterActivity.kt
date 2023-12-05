@@ -3,6 +3,7 @@ package id.ac.umn.kevinsorensen.bengkelonline.views.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -104,6 +105,7 @@ fun WrapperFunction(
         emailErrorMessage = registerState.emailError,
         passwordErrorMessage = registerState.passwordError,
         confirmPasswordErrorMessage = registerState.confirmPasswordError,
+        inputPasswordVisibility = registrationViewModel.inputPasswordVisibility,
         onRegister = {
             registrationViewModel.register {
                 // finish activity
