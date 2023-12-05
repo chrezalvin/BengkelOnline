@@ -110,7 +110,6 @@ fun HomePhone() {
             text = "Tambahkan Video Kondisi Motor Anda Saat ini (Wajib : 1)",
             fontSize = 15.sp,
             color = Color.Blue,
-            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -120,7 +119,7 @@ fun HomePhone() {
                 .width(100.dp)
                 .height(100.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color.Blue)
+                .background(Color.Gray)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.baseline_add_24),
@@ -129,16 +128,15 @@ fun HomePhone() {
                     .width(100.dp)
                     .height(100.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color.Blue)
+                    .background(Color.Gray)
                     .clickable { showDialog = false }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Tambahkan Video Kondisi Motor Anda Saat ini (Wajib : 1)",
+            text = "Tambahkan Video Kondisi Motor Anda Saat ini (Wajib : 1, Maks : 3)",
             fontSize = 15.sp,
             color = Color.Blue,
-            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -156,7 +154,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable { showDialog = false }
                 )
                 Spacer(modifier = Modifier.width(20.dp))
@@ -168,7 +166,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable { showDialog = false }
                 )
                 Spacer(modifier = Modifier.width(20.dp))
@@ -180,7 +178,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable { showDialog = false }
                 )
             } else {
@@ -191,7 +189,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable {
                             cLauncher.launch()
                             showDialog = false
@@ -205,7 +203,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable {
                             cLauncher.launch()
                             showDialog = false
@@ -219,7 +217,7 @@ fun HomePhone() {
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Blue)
+                        .background(Color.Gray)
                         .clickable {
                             cLauncher.launch()
                             showDialog = false
