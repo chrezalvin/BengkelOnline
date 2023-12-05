@@ -86,7 +86,6 @@ fun HomePhone() {
             bitmaps = bitmaps.toMutableList().apply { this[index] = it }.toList()
         }
     }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -97,7 +96,6 @@ fun HomePhone() {
             text = "Set Your Location",
             fontSize = 15.sp,
             color = Color.Blue,
-            fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Button(
@@ -183,25 +181,26 @@ fun HomePhone() {
                 }
                 Spacer(modifier = Modifier.width(20.dp))
             }
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text("Jelaskan Keluhan Anda") }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text("Jelaskan Keluhan Anda") }
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = {
+                // Handle location button click here
+            },
+            modifier = Modifier
+                .height(50.dp)
+                .width(200.dp),
+            colors = ButtonDefaults.buttonColors(
+                Color.Blue
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    // Handle location button click here
-                },
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(200.dp),
-                colors = ButtonDefaults.buttonColors(
-                    Color.Blue
-                )
-            ) {
-                Text("Pesan Sekarang")
-            }
+        ) {
+            Text("Pesan Sekarang")
         }
     }
 }
