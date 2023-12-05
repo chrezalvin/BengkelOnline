@@ -80,13 +80,12 @@ fun HomePhone() {
             fontWeight = FontWeight.Bold,
         )
     }
-    Spacer(modifier = Modifier.height(500.dp))
     Column (
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 80.dp)
+            .padding(top = 0.dp)
     ) {
             Row (
                 verticalAlignment = Alignment.CenterVertically,
