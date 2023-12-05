@@ -3,12 +3,18 @@ package id.ac.umn.kevinsorensen.bengkelonline.api
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Filter
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Address
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import java.security.MessageDigest
+import java.util.UUID
 
-class UserController(val database: FirebaseFirestore){
+class UserController(private val database: Firebase){
+    private val firestore = database.firestore;
+    private val storage = database.storage;
+
     private fun hash(str: String): String {
         val bytes = str.toByteArray()
         val md = MessageDigest.getInstance("SHA-256")
@@ -16,14 +22,42 @@ class UserController(val database: FirebaseFirestore){
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
-    fun addUser(user: User, callback: (Boolean) -> Unit){
-        database.collection(COLLECTION_NAME)
+    fun addUser(
+        email: String,
+        username: String,
+        password: String,
+        role: String = "user",
+        phoneNumber: String? = null,
+        callback: (Boolean, String?) -> Unit,
+    ){
+        var uuid = UUID.randomUUID().toString();
+
+        // check if uuid exist within database
+        getUserById(uuid){ user ->
+            if(user != null){
+                // if exist, generate new uuid
+                uuid = UUID.randomUUID().toString();
+            }
+        }
+
+        val user = User(
+            uuid,
+            username,
+            email,
+            hash(password),
+            if(role == "user" || role == "merchant") role else "user",
+            null,
+            phoneNumber,
+            null,
+        );
+
+        firestore.collection(COLLECTION_NAME)
             .add(user)
             .addOnSuccessListener {
-                callback(true);
+                callback(true, null);
             }
             .addOnFailureListener{
-                callback(false);
+                callback(false, it.message);
             }
     }
 
@@ -115,57 +149,81 @@ class UserController(val database: FirebaseFirestore){
             .addOnFailureListener{
                 throw it;
             }
+
     }
 
-    private fun dataValidation(document: DocumentSnapshot?): User? {
-        if(document != null) {
-            val id = document.get("id");
-            val username = document.get("username");
-            val email = document.get("email");
-            val password = document.get("password");
-            val role = document.get("role");
-            val address = document.get("address");
-            val phone = document.get("phoneNumber");
-            val photo = document.get("photo");
+    private fun dataValidation(document: DocumentSnapshot): User {
+        // these are strings
+        val id = document.get("id") as String? ?: throw Exception("id is null");
+        val username = document.get("username") as String? ?: "";
+        val email = document.get("email") as String? ?: "";
+        val password = document.get("password") as String? ?: "";
+        val role = document.get("role") as String? ?: "user";
+        val phone = document.get("phoneNumber") as String?;
+        val photo = document.get("photo") as String?;
 
-            if (id != null && username != null && email != null && password != null && role != null && phone != null && photo != null) {
-                if(address is Map<*, *>){
-                    val lat = address["lat"];
-                    val long = address["long"];
-                    val addressName = address["name"];
-                    val desc = address["description"];
+        Log.d(TAG, "Got user: id: $id, username: $username, email: $email, password: $password, role: $role, phone: $phone, photo: $photo");
 
-                    if(lat != null && long != null && addressName != null && desc != null){
-                        if(lat is Number && long is Number){
-                            val add = Address(
-                                addressName as String,
-                                lat.toFloat(),
-                                long.toFloat(),
-                                desc as String,
-                            )
-                        }
-                    }
+        // nullable string or object
+        var address = document.get("address");
+
+        /*if(address != null){
+            if(address is Map<*, *>){
+                val lat = address["lat"];
+                val long = address["long"];
+                val addressName = address["name"];
+                val desc = address["description"];
+
+                if(lat == null || long == null || addressName == null || desc == null){
+                    if(lat == null)
+                        Log.d(TAG, "lat is null");
+                    if(long == null)
+                        Log.d(TAG, "long is null");
+                    if(addressName == null)
+                        Log.d(TAG, "addressName is null");
+                    if(desc == null)
+                        Log.d(TAG, "desc is null");
+
+                    throw Exception("One of the mentioned variable is null");
                 }
-
-                return User(
-                    id as String,
-                    username as String,
-                    email as String,
-                    password as String,
-                    role as String,
-                    null,
-                    phone as String,
-                    photo as String,
-                );
+                else{
+                    if(lat is Number && long is Number){
+                        address = Address(
+                            addressName as String,
+                            lat as Float,
+                            long as Float,
+                            desc as String,
+                        )
+                    }
+                    else
+                        throw Exception("Error on reading address data");
+                }
             }
-        }
+            else
+                throw Exception("Error on reading address data");
+        }*/
 
-        return null;
+        return User(
+            id,
+            username,
+            email,
+            password,
+            role,
+            null,
+            phone,
+            photo,
+        );
     }
 
     fun updateUser(){
 
     }
+
+//    fun getProfilePhoto(profile: String, onSuccess: (Uri) -> Unit){
+//        ResourceCollector(storage).getProfilePhoto(profile){
+//            onSuccess(it);
+//        }
+//    }
 
     companion object {
         const val COLLECTION_NAME = "users"

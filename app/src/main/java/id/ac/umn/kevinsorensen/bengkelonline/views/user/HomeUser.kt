@@ -100,11 +100,13 @@ class HomeUser : ComponentActivity() {
         val profileUrl = intent.getStringExtra("profileUrl");
 
         setContent {
+
+
             var products by remember { mutableStateOf(listOf<Product>()) }
 
             val navController = rememberNavController()
-            val db = Firebase.firestore;
-            val productController = ProductController(db);
+            val db = Firebase;
+            val productController = ProductController(db.firestore);
             val userController = UserController(db);
 
             userController.getUser("admin", "admin"){

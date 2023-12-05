@@ -1,7 +1,9 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -84,6 +87,7 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     val loginState by loginViewModel.uiState.collectAsState();
     val tabs = listOf("User")
     val navController = rememberNavController()
+    val context = LocalContext.current;
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -95,6 +99,10 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
     ) {
         when (loginState.pageIndex) {
             0 -> LoginUser(
+                onRegisterUser = {
+                    val intent = Intent(context, RegisterActivity::class.java);
+                    context.startActivity(intent);
+                },
                 navController = navController,
                 errorMessage = loginState.error,
                 user = loginState.user,
@@ -125,6 +133,7 @@ fun LoginUser(
     updatePassword: (String) -> Unit,
     togglePasswordVisibility: () -> Unit,
     onLogin: () -> Unit,
+    onRegisterUser: () -> Unit,
     navController: NavController
 ) {
     val mContext = LocalContext.current
@@ -137,12 +146,11 @@ fun LoginUser(
     if(user != null){
         val intent = Intent(LocalContext.current, HomeUser::class.java)
             .putExtra("userId", user.id)
-            .putExtra("username", user.name);
+            .putExtra("username", user.username);
 
         LocalContext.current.startActivity(
             intent
         )
-
     }
 
     Column (

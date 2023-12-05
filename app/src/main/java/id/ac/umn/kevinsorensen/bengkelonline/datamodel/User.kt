@@ -2,11 +2,11 @@ package id.ac.umn.kevinsorensen.bengkelonline.datamodel
 
 data class User(
     val id: String,
-    val name: String,
+    val username: String,
     val email: String,
     val password: String,
-    val role: String,
-    val address: Address?,
-    val phone: String,
-    val photo: String,
+    val role: String = "user",
+    val address: Address? = null,
+    val phoneNumber: String? = null,
+    val photo: String? = null,
 )

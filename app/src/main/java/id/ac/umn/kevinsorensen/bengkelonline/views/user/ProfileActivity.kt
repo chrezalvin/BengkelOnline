@@ -1,6 +1,5 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.user
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -21,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -40,56 +42,58 @@ import com.google.firebase.storage.ktx.storage
 import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.ProfileViewModel
 
 
 class ProfileActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val userId = intent.getStringExtra("userId");
         Log.d(TAG, "userId: $userId");
 
-        if(userId == null){
-            // TODO show error
-            return;
-        }
-
-        val db = Firebase;
-        val userController = UserController(db.firestore);
-        val ResourceCollector = ResourceCollector(db.storage);
-
-
-        userController.getUserById(userId){
-            setContent {
-                var profileImgurl by remember { mutableStateOf("") }
-
-                    Scaffold(
-                        topBar = {
-                            TopNavigation2(this)
-                        },
-                        content = { p ->
-                            val navController = rememberNavController()
-                            Column(modifier = Modifier.padding(p)) {
-                                if (it != null) {
-                                    ResourceCollector.getProfilePhoto(it.photo) {
-                                        profileImgurl = it.toString();
-                                    }
-
-                                    UserContent(user = it, profileImgurl);
-                                } else
-                                    errorPage()
-                            }
-                        }
-                    )
-            }
+        setContent {
+            if(userId == null)
+                errorPage("User not found"){
+                    finish();
+                }
+            else
+                profilePage(this, ProfileViewModel(userId));
         }
     }
 
     companion object {
         private const val TAG = "ProfileActivity";
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun profilePage(
+    activity: ComponentActivity,
+    profileViewModel: ProfileViewModel = viewModel()
+){
+    val profileState by profileViewModel.uiState.collectAsState();
+
+    Scaffold(
+        topBar = {
+            TopNavigation2(activity)
+        },
+        content = { p ->
+            val navController = rememberNavController()
+            Column(modifier = Modifier.padding(p)) {
+                if (profileState.user != null) {
+                    UserContent(
+                        user = profileState.user!!,
+                        imageUrl = profileState.profilePhoto.toString()
+                    );
+                } else
+                    errorPage(profileState.error){
+                        activity.finish();
+                    }
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,8 +151,20 @@ fun UserContent(user: User, imageUrl: String){
 }
 
 @Composable
-fun errorPage(){
+fun errorPage(message: String? = null, onButtonGoBack: () -> Unit){
     Column {
         Text(text = "Error")
+        if(message != null)
+            Text(text = message)
+        Button(
+            content = { Text(text = "Go Back") },
+            onClick = onButtonGoBack
+        )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun errorPagePreview(){
+    errorPage("Error message", {});
 }

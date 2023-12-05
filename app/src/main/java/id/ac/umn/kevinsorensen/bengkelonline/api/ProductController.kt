@@ -5,7 +5,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 
-class ProductController(val database: FirebaseFirestore) {
+class ProductController(private val database: FirebaseFirestore) {
     fun addProduct(product: Product, callback: (Boolean) -> Unit): Unit  {
         database.collection(COLLECTION_NAME)
             .add(product)
@@ -73,6 +73,7 @@ class ProductController(val database: FirebaseFirestore) {
             }
             .addOnFailureListener{
                 throw it;
+
             }
     }
 

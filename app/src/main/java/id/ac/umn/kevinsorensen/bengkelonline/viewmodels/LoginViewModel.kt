@@ -1,10 +1,10 @@
 package id.ac.umn.kevinsorensen.bengkelonline.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
@@ -32,7 +32,7 @@ class LoginViewModel: ViewModel() {
     var inputEmailOrUsername by mutableStateOf("")
         private set;
 
-    private val userController = UserController(Firebase.firestore);
+    private val userController = UserController(Firebase);
 
     init {
         resetInputs();
@@ -72,6 +72,7 @@ class LoginViewModel: ViewModel() {
             if (it != null) {
                 resetInputs();
                 _uiState.update { loginState ->
+                    Log.d("LoginViewModel", "user: $it");
                     loginState.copy(user = it)
                 }
             } else {
