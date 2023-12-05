@@ -1,5 +1,6 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -30,6 +31,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,26 +47,79 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import id.ac.umn.kevinsorensen.bengkelonline.RegisterUsers
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.RegistrationViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.main.ui.theme.BengkelOnlineTheme
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
+import com.google.firebase.ktx.Firebase
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val firebase = Firebase;
         setContent {
-            RegisterUser(
-                updateEmailOrUsername = {} ,
-                updatePassword = {},
-                togglePasswordVisibility = { /*TODO*/ },
-                onLogin = { /*TODO*/ }
-            )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                WrapperFunction(
+                    this,
+                    RegistrationViewModel(firebase)
+                );
+            }
         }
     }
 }
+
+@Composable
+fun WrapperFunction(
+    activity: Activity,
+    registrationViewModel: RegistrationViewModel = viewModel()
+){
+    val registerState by registrationViewModel.uiState.collectAsState();
+
+    RegisterUser(
+        username = registrationViewModel.inputUsername,
+        email = registrationViewModel.inputEmail,
+        password = registrationViewModel.inputPassword,
+        confirmPassword = registrationViewModel.inputConfirmPassword,
+        onUsernameChange = {
+            registrationViewModel.updateUsername(it);
+        },
+        onEmailChange = {
+            registrationViewModel.updateEmail(it);
+        },
+        onPasswordChange = {
+            registrationViewModel.updatePassword(it);
+        },
+        onConfirmPasswordChange = {
+            registrationViewModel.updateConfirmPassword(it);
+        },
+        usernameErrorMessage = registerState.usernameError,
+        emailErrorMessage = registerState.emailError,
+        passwordErrorMessage = registerState.passwordError,
+        confirmPasswordErrorMessage = registerState.confirmPasswordError,
+        onRegister = {
+            registrationViewModel.register {
+                // finish activity
+                if(registerState.error == null)
+                    return@register;
+                else
+                    activity.finish();
+            }
+        },
+        error = registerState.error,
+        togglePasswordVisibility = {
+            registrationViewModel.togglePasswordVisibility()
+        },
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,11 +128,22 @@ fun RegisterUser(
     user: User? = null,
     emailOrUsername: String = "",
     password: String = "",
+    inputPasswordVisibility: Boolean = false,
     passwordVisible: Boolean = true,
-    updateEmailOrUsername: (String) -> Unit,
-    updatePassword: (String) -> Unit,
     togglePasswordVisibility: () -> Unit,
-    onLogin: () -> Unit,
+    username: String = "",
+    email: String = "",
+    confirmPassword: String = "",
+    onUsernameChange: (String) -> Unit = {},
+    onEmailChange: (String) -> Unit = {},
+    onPasswordChange: (String) -> Unit = {},
+    onConfirmPasswordChange: (String) -> Unit = {},
+    usernameErrorMessage: String? = null,
+    emailErrorMessage: String? = null,
+    passwordErrorMessage: String? = null,
+    confirmPasswordErrorMessage: String? = null,
+    onRegister: () -> Unit = {},
+    error: String? = null,
 ) {
     val mContext = LocalContext.current
     // placeholder for real error, don't use toast
@@ -121,13 +188,10 @@ fun RegisterUser(
             modifier = Modifier.padding(bottom = 40.dp)
         )
         TextField (
-            value = emailOrUsername,
-            onValueChange = {
-                updateEmailOrUsername(it)
-            },
-            label = {
-                Text(text = "Username")
-            },
+            value = username,
+            onValueChange = onUsernameChange,
+            label = { Text(usernameErrorMessage ?: "Username") },
+            isError = usernameErrorMessage != null,
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_person_24),
@@ -135,12 +199,53 @@ fun RegisterUser(
                 )
             },
             trailingIcon = {
-                if(emailOrUsername.isNotEmpty()) {
+                if(username.isNotEmpty()) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_close_24),
                         contentDescription = null,
                         Modifier.clickable {
-                            updateEmailOrUsername("")
+                            onUsernameChange("")
+                        }
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Blue,
+                focusedLabelColor = Color.Blue,
+                focusedLeadingIconColor = Color.Blue,
+                containerColor = Color.White,
+                unfocusedIndicatorColor = Color.Blue,
+                unfocusedLabelColor = Color.Blue,
+                unfocusedLeadingIconColor = Color.Blue
+            ),
+            textStyle = TextStyle(
+                color = Color.Blue,
+                fontSize = 16.sp
+            )
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        TextField (
+            value = email,
+            onValueChange = onEmailChange,
+            label = { Text(emailErrorMessage ?: "Email") },
+            isError = emailErrorMessage != null,
+            leadingIcon = {
+                Icon (
+                    painter = painterResource(id = R.drawable.baseline_email_24),
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                if(email.isNotEmpty()) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_close_24),
+                        contentDescription = null,
+                        Modifier.clickable {
+                            onEmailChange("")
                         }
                     )
                 }
@@ -166,12 +271,9 @@ fun RegisterUser(
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = password,
-            onValueChange = {
-                updatePassword(it)
-            },
-            label = {
-                Text(text="Password")
-            },
+            onValueChange = onPasswordChange,
+            label = { Text(passwordErrorMessage ?: "Password") },
+            isError = passwordErrorMessage != null,
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_lock_24),
@@ -180,7 +282,7 @@ fun RegisterUser(
             },
             trailingIcon = {
                 if (password.isNotEmpty()) {
-                    val visibilityIcon = if (passwordVisible) {
+                    val visibilityIcon = if (inputPasswordVisibility) {
                         painterResource(id = R.drawable.baseline_visibility_24)
                     }
                     else {
@@ -195,7 +297,7 @@ fun RegisterUser(
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) {
+            visualTransformation = if (inputPasswordVisibility) {
                 VisualTransformation.None
             }
             else {
@@ -221,13 +323,10 @@ fun RegisterUser(
         )
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
-            value = password,
-            onValueChange = {
-                updatePassword(it)
-            },
-            label = {
-                Text(text="Confirm Password")
-            },
+            value = confirmPassword,
+            onValueChange = onConfirmPasswordChange,
+            label = { Text(confirmPasswordErrorMessage ?: "Confirm Password") },
+            isError = confirmPasswordErrorMessage != null,
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_lock_24),
@@ -275,20 +374,20 @@ fun RegisterUser(
             ),
             singleLine = true
         )
+        if(error != null)
+            Text(error);
         Spacer(modifier = Modifier.height(40.dp))
         Button (
             modifier = Modifier
                 .height(50.dp)
                 .width(200.dp),
-            onClick = {
-                onLogin();
-            },
+            onClick = onRegister,
             colors = ButtonDefaults.buttonColors(
                 Color.Blue
             )
         ) {
             Text(
-                text = "Log in",
+                text = "Register",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

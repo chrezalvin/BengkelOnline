@@ -56,6 +56,7 @@ import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
+import id.ac.umn.kevinsorensen.bengkelonline.views.main.RegisterActivity
 
 @Composable
 fun LoginActivity() {
