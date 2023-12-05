@@ -4,9 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.myapi.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
-import id.ac.umn.kevinsorensen.bengkelonline.myapi.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

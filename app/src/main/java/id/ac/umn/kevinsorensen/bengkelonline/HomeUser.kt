@@ -62,9 +62,9 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.myapi.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.myapi.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.myapi.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 
 sealed class BottomNavItem (
