@@ -71,14 +71,14 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         inputPasswordVisibility = false;
     }
 
-    fun validateUsername(){
+    private fun validateUsername(){
         if(inputUsername.isEmpty())
             _uiState.value = _uiState.value.copy(usernameError = "Please fill out the username first!");
         else
             _uiState.value = _uiState.value.copy(usernameError = null);
     }
 
-    fun validateEmail(){
+    private fun validateEmail(){
         if(inputEmail.isEmpty())
             _uiState.value = _uiState.value.copy(emailError = "Please fill out the email first!");
         else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches())
@@ -87,14 +87,14 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
             _uiState.value = _uiState.value.copy(emailError = null);
     }
 
-    fun validatePassword(){
+    private fun validatePassword(){
         if(inputPassword.isEmpty())
             _uiState.value = _uiState.value.copy(passwordError = "Please fill out the password first!");
         else
             _uiState.value = _uiState.value.copy(passwordError = null);
     }
 
-    fun validateConfirmPassword(){
+    private fun validateConfirmPassword(){
         if(inputConfirmPassword.isEmpty())
             _uiState.value = _uiState.value.copy(confirmPasswordError = "Please fill out the confirm password first!");
         else if(inputConfirmPassword != inputPassword)
@@ -112,18 +112,23 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         if (_uiState.value.usernameError != null || _uiState.value.emailError != null || _uiState.value.passwordError != null || _uiState.value.confirmPasswordError != null)
             return;
         else {
-            val role = if (isMerchant) "merchant" else "user";
-            userController.addUser(
-                inputEmail,
-                inputUsername,
-                inputPassword,
-                role
-            ) { success, message ->
-                if (success) {
-                    resetInputs();
-                    _uiState.value = _uiState.value.copy(error = null);
-                } else
-                    _uiState.value = _uiState.value.copy(error = message);
+            try {
+                val role = if (isMerchant) "merchant" else "user";
+                userController.addUser(
+                    inputEmail,
+                    inputUsername,
+                    inputPassword,
+                    role
+                ) { success, message ->
+                    if (success) {
+                        resetInputs();
+                        _uiState.value = _uiState.value.copy(error = null);
+                        onSuccessRegistration();
+                    } else
+                        _uiState.value = _uiState.value.copy(error = message);
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = e.message);
             }
         }
     }

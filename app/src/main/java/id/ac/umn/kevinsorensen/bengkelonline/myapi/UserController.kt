@@ -27,16 +27,27 @@ class UserController(private val database: Firebase){
         username: String,
         password: String,
         role: String = "user",
-        callback: (Boolean, String?) -> Unit
+        callback: (Boolean, String?) -> Unit,
+        phoneNumber: String? = null,
     ){
+        var uuid = UUID.randomUUID().toString();
+
+        // check if uuid exist within database
+        getUserById(uuid){ user ->
+            if(user != null){
+                // if exist, generate new uuid
+                uuid = UUID.randomUUID().toString();
+            }
+        }
+
         val user = User(
-            UUID.fromString(username).toString(),
+            uuid,
             username,
             email,
             hash(password),
             if(role == "user" || role == "merchant") role else "user",
             null,
-            null,
+            phoneNumber,
             null,
         );
 
@@ -117,7 +128,7 @@ class UserController(private val database: Firebase){
                 val document = it.documents[0];
                 val user = dataValidation(document);
 
-                Log.d(TAG, "Got user data: ${user.toString()}");
+                Log.d(TAG, "Got user data: $user");
 
                 if(user != null){
                     // check password
