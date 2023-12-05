@@ -75,10 +75,6 @@ sealed class BottomNavItem (
     var icon: Int,
     var route: String
 ) {
-    object Home :
-        BottomNavItem(
-            R.drawable.baseline_home_24, "home"
-        )
     object Maps :
             BottomNavItem(
                 R.drawable.baseline_location_on_24, "maps"
@@ -125,19 +121,8 @@ class HomeUser : ComponentActivity() {
                 content = {
                     NavHost(
                         navController = navController,
-                        startDestination = BottomNavItem.Home.route,
+                        startDestination = BottomNavItem.Maps.route,
                     ) {
-                        composable(BottomNavItem.Home.route) {
-                            // Replace with your HomeScreen composable
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(top = 80.dp),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                HomeUsers()
-                            }
-                        }
                         composable(BottomNavItem.Maps.route) {
                             // Replace with your MapsScreen composable
                             Surface(
@@ -164,22 +149,6 @@ class HomeUser : ComponentActivity() {
                 }
             )
         }
-    }
-}
-
-@Composable
-fun HomeUsers() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp)
-    ) {
-        Text(
-            text = "Ini Home",
-            fontSize = 15.sp,
-            color = Color.Blue,
-        )
     }
 }
 
@@ -240,7 +209,6 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String) {
 fun BottomNavigation(navController: NavController) {
     val items = listOf (
         BottomNavItem.Maps,
-        BottomNavItem.Home,
         BottomNavItem.Phone
     )
     NavigationBar {
