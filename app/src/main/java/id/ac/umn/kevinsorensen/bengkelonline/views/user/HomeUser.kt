@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +35,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -158,6 +160,7 @@ class HomeUser : ComponentActivity() {
 fun TopNavigation(username: String, profileUrl: String?, userId: String) {
     val contextForToast = LocalContext.current.applicationContext
     val mContext = LocalContext.current
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
@@ -221,8 +224,40 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String) {
                             )
                         },
                         text = { Text("Log Out") },
-                        onClick = { mContext.startActivity(Intent(mContext, MainActivity::class.java)) }
+                        onClick = {
+                            showLogoutDialog = true
+                            // Context.startActivity(Intent(mContext, MainActivity::class.java))
+                        }
                     )
+                    if(showLogoutDialog) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showLogoutDialog = false
+                            },
+                            title = {
+                                Text("Log Out")
+                            },
+                            text = {
+                                Text("Are you sure you want to log out?")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = { mContext.startActivity(Intent(mContext, MainActivity::class.java)) }
+                                ) {
+                                    Text("Yes")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        showLogoutDialog = false
+                                    }
+                                ) {
+                                    Text("No")
+                                }
+                            }
+                        )
+                    }
                 }
         },
     )
