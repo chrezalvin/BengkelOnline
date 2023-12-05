@@ -88,7 +88,7 @@ fun RegisterMerchant(
     if(user != null){
         val intent = Intent(LocalContext.current, HomeUser::class.java)
             .putExtra("userId", user.id)
-            .putExtra("username", user.name);
+            .putExtra("username", user.username);
 
         LocalContext.current.startActivity(
             intent

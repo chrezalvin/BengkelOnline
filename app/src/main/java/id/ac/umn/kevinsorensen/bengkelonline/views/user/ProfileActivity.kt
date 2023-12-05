@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -142,9 +143,9 @@ fun UserContent(user: User, imageUrl: String){
                     .padding(top = 10.dp)
                 ,
             ) {
-                Text(text = user.name, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Text(text = user.username, fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 Text(text = user.email, fontSize = 10.sp)
-                Text(text = user.phone, fontSize = 10.sp)
+                Text(text = user.phoneNumber ?: "", fontSize = 10.sp)
             }
         }
     }

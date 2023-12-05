@@ -64,7 +64,7 @@ class UserController(private val database: Firebase){
     fun deleteUser(id: String, callback: (Boolean) -> Unit){
         // TODO (must implement password checking before delete)
 
-        database.collection(COLLECTION_NAME)
+        firestore.collection(COLLECTION_NAME)
             .whereEqualTo("id", id)
             .get()
             .addOnSuccessListener {
@@ -88,7 +88,7 @@ class UserController(private val database: Firebase){
     }
 
     fun getUserById(id: String, callback: (User?) -> Unit){
-        database.collection(COLLECTION_NAME)
+        firestore.collection(COLLECTION_NAME)
             .whereEqualTo("id", id)
             .get()
             .addOnSuccessListener {
@@ -116,7 +116,7 @@ class UserController(private val database: Firebase){
 
     fun getUser(emailOrUsername: String, password: String, callback: (User?) -> Unit) {
         // get user
-        database.collection(COLLECTION_NAME)
+        firestore.collection(COLLECTION_NAME)
             .where(
                 Filter.or(
                     Filter.equalTo("email", emailOrUsername),
