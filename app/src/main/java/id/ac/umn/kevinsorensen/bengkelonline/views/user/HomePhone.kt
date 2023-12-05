@@ -55,30 +55,38 @@ import id.ac.umn.kevinsorensen.bengkelonline.R
 @Preview
 @Composable
 fun HomePhone() {
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(true) }
     var text by remember { mutableStateOf("") }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) {uri: Uri? ->
-        uri?.let {
-            bitmap = if (Build.VERSION.SDK_INT < 28) {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            }
-            else {
-                val source = ImageDecoder.createSource (context.contentResolver, it)
-                ImageDecoder.decodeBitmap(source)
+    val launchers = List(3) { index ->
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let {
+                bitmaps = bitmaps.toMutableList().apply {
+                    this[index] = if (Build.VERSION.SDK_INT < 28) {
+                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                    } else {
+                        val source = ImageDecoder.createSource(context.contentResolver, it)
+                        ImageDecoder.decodeBitmap(source)
+                    }
+                }.toList()
             }
         }
     }
 
-    val cLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) {
-        bitmap = it
+    // Launchers for capturing or selecting images
+    val cLaunchers = List(3) { index ->
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicturePreview()
+        ) {
+            // Update the corresponding bitmap in the list
+            bitmaps = bitmaps.toMutableList().apply { this[index] = it }.toList()
+        }
     }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -145,105 +153,55 @@ fun HomePhone() {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            if (bitmap != null) {
-                Image(
-                    bitmap = bitmap?.asImageBitmap()!!,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable { showDialog = false }
-                )
+            for (index in 0 until 3) {
+                if (bitmaps[index] != null) {
+                    Image(
+                        bitmap = bitmaps[index]!!.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.Gray)
+                            .clickable { showDialog = false }
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_image_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.Gray)
+                            .clickable {
+                                launchers[index].launch("image/*")
+                                showDialog = false
+                            }
+                    )
+                }
                 Spacer(modifier = Modifier.width(20.dp))
-                Image(
-                    bitmap = bitmap?.asImageBitmap()!!,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable { showDialog = false }
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                Image(
-                    bitmap = bitmap?.asImageBitmap()!!,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable { showDialog = false }
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable {
-                            cLauncher.launch()
-                            showDialog = false
-                        }
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable {
-                            cLauncher.launch()
-                            showDialog = false
-                        }
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                        .clickable {
-                            cLauncher.launch()
-                            showDialog = false
-                        }
-                )
             }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Jelaskan Keluhan Anda") }
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = {
-                // Handle location button click here
-            },
-            modifier = Modifier
-                .height(50.dp)
-                .width(200.dp),
-            colors = ButtonDefaults.buttonColors(
-                Color.Blue
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Jelaskan Keluhan Anda") }
             )
-        ) {
-            Text("Pesan Sekarang")
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = {
+                    // Handle location button click here
+                },
+                modifier = Modifier
+                    .height(50.dp)
+                    .width(200.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Color.Blue
+                )
+            ) {
+                Text("Pesan Sekarang")
+            }
         }
     }
 }
