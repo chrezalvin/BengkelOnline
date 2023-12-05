@@ -30,6 +30,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,9 +46,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.ForgotPasswordViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.main.ui.theme.BengkelOnlineTheme
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
@@ -54,15 +59,29 @@ import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 class ForgotPassActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val firebase = Firebase
         setContent {
-            ForgotPass(
-                updateEmailOrUsername = {} ,
-                updatePassword = {},
-                togglePasswordVisibility = { /*TODO*/ },
-                onLogin = { /*TODO*/ }
-            )
+            ForgotPassWrapper(forgotPasswordViewModel = ForgotPasswordViewModel(firebase));
         }
     }
+}
+
+@Composable
+fun ForgotPassWrapper(forgotPasswordViewModel: ForgotPasswordViewModel = viewModel()){
+    val uiState by forgotPasswordViewModel.uiState.collectAsState();
+
+    ForgotPass(
+        emailOrUsername = forgotPasswordViewModel.emailOrUsername,
+        password = forgotPasswordViewModel.newPassword,
+        updateEmailOrUsername = {forgotPasswordViewModel.updateEmailOrUsername(it)} ,
+        updatePassword = {forgotPasswordViewModel.updateNewPassword(it)},
+        togglePasswordVisibility = { forgotPasswordViewModel.togglePasswordVisibility() },
+        errorMessage = uiState.error,
+        onLogin = {},
+        confirmPassword = forgotPasswordViewModel.confirmPassword,
+        updateConfirmPassword = {forgotPasswordViewModel.updateConfirmPassword(it)}
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,10 +91,12 @@ fun ForgotPass(
     user: User? = null,
     emailOrUsername: String = "",
     password: String = "",
-    passwordVisible: Boolean = true,
+    passwordVisible: Boolean = false,
+    confirmPassword: String = "",
     updateEmailOrUsername: (String) -> Unit,
     updatePassword: (String) -> Unit,
     togglePasswordVisibility: () -> Unit,
+    updateConfirmPassword: (String) -> Unit,
     onLogin: () -> Unit,
 ) {
     val mContext = LocalContext.current
@@ -221,9 +242,9 @@ fun ForgotPass(
         )
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
-            value = password,
+            value = confirmPassword,
             onValueChange = {
-                updatePassword(it)
+                updateConfirmPassword(it)
             },
             label = {
                 Text(text="Confirm Password")

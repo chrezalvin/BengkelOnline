@@ -22,6 +22,51 @@ class UserController(private val database: Firebase){
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
+    fun changePassword(
+        usernameOrEmail: String,
+        newPassword: String,
+        onSuccess: () -> Unit,
+        onFailure: (reason: String) -> Unit
+    ){
+        // get user
+        firestore.collection(COLLECTION_NAME)
+            .where(
+                Filter.or(
+                    Filter.equalTo("email", usernameOrEmail),
+                    Filter.equalTo("username", usernameOrEmail),
+                ),
+            )
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("User not found");
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val document = it.documents[0];
+                    val user = dataValidation(document);
+
+                    Log.d(TAG, "Got user data: ${user.toString()}");
+
+                    if (user != null) {
+                        // update password
+                        document.reference.update("password", hash(newPassword))
+                            .addOnSuccessListener {
+                                onSuccess();
+                            }
+                            .addOnFailureListener {
+                                ex -> onFailure(ex.message.toString());
+                            }
+                    } else {
+                        onFailure("User not found");
+                    }
+                }
+            }
+            .addOnFailureListener{
+                onFailure(it.message.toString());
+            }
+    }
+
     fun addUser(
         email: String,
         username: String,
