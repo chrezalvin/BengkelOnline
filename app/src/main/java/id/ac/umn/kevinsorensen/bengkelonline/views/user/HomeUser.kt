@@ -42,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -157,8 +156,7 @@ class HomeUser : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                val coroutineScope = rememberCoroutineScope()
-                                HomeMaps(activity = this@HomeUser, coroutineScope = coroutineScope)
+                                HomeMaps()
                                 Text("Maps")
                             }
                         }

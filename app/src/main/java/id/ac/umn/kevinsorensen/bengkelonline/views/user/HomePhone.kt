@@ -5,6 +5,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -86,6 +87,7 @@ fun HomePhone() {
             bitmaps = bitmaps.toMutableList().apply { this[index] = it }.toList()
         }
     }
+    
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -109,7 +111,7 @@ fun HomePhone() {
                 Color.Blue
             )
         ) {
-            Text("Get Location")
+            Text("Get Current Location")
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
