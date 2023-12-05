@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -130,22 +132,10 @@ class HomeUser : ComponentActivity() {
                             Surface(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(top = 100.dp),
+                                    .padding(top = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                try {
-                                    productController.getAllProduct() {
-                                        products = it
-                                    }
-                                }
-                                catch (ex: Exception){
-                                    Toast.makeText(this@HomeUser, ex.message, Toast.LENGTH_SHORT).show()
-                                }
-                                Column {
-                                    products.forEach {
-                                        itemProduct(it)
-                                    }
-                                }
+                                HomeUsers()
                             }
                         }
                         composable(BottomNavItem.Maps.route) {
@@ -157,7 +147,6 @@ class HomeUser : ComponentActivity() {
                                 color = MaterialTheme.colorScheme.background
                             ) {
                                 HomeMaps()
-                                Text("Maps")
                             }
                         }
                         composable(BottomNavItem.Phone.route) {
@@ -165,7 +154,7 @@ class HomeUser : ComponentActivity() {
                             Surface(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(top = 100.dp),
+                                    .padding(top = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
                                 HomePhone()
@@ -178,136 +167,20 @@ class HomeUser : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun itemProduct(
-    product: Product,
-    modifier: Modifier = Modifier
-) {
-    val resourceCollector = ResourceCollector(Firebase.storage);
-    var image by remember { mutableStateOf("") }
-
-    resourceCollector.getImageResource(product.imageUrl?: ""){
-        image = it.toString();
-    }
-    
-    TextField(
-        value = "",
-        onValueChange = {},
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            cursorColor = MaterialTheme.colorScheme.primary,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        placeholder = {
-            Text(stringResource(R.string.placeholder_search))
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-    )
-    Spacer(modifier = Modifier.height(20.dp))
-    Row{
-        GlideImage(
-            model = image,
-            contentDescription = product.name,
-            Modifier
-                .width(60.dp)
-                .height(40.dp)
-        )
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .border(1.dp, Color.Black)
-        ) {
-            Text(
-                text = product.name,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(4.dp)
-            )
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(4.dp)
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxWidth(1f)
-                        .weight(1f)
-                ) {
-                    Text(text = "Price")
-                    Text(text = "Stock")
-                    Text(text = "Description")
-                }
-                Column(
-                    Modifier
-                        .fillMaxWidth(1f)
-                        .weight(1f)
-                ) {
-                    Text(text = product.price.toString())
-                    Text(text = product.stock.toString())
-                    Text(text = product.description)
-                }
-            }
-        }
-    }
-/*
+fun HomeUsers() {
     Column(
-        Modifier.border(1.dp, Color.Black)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .border(1.dp, Color.Black)
-        ) {
-            Text(
-                text = product.name,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(4.dp)
-                )
-        }
-
-        Row(
-
-        ) {
-            Column(
-                Modifier.fillMaxWidth(1f).weight(1f)
-            ) {
-                Text(text = "Price")
-                Text(text = "Stock")
-                Text(text = "Description")
-            }
-            Column(
-                Modifier.fillMaxWidth(1f).weight(1f)
-            ) {
-                Text(text = product.price.toString())
-                Text(text = product.stock.toString())
-                Text(text = product.description)
-            }
-        }
+        Text(
+            text = "Ini Home",
+            fontSize = 15.sp,
+            color = Color.Blue,
+        )
     }
-*/
-}
-
-@Preview
-@Composable
-fun itemProductPreview(){
-    itemProduct(product = Product("1", "Ban", 100000, 10, "Ban Motor"));
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
