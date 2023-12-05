@@ -27,8 +27,8 @@ class UserController(private val database: Firebase){
         username: String,
         password: String,
         role: String = "user",
-        callback: (Boolean, String?) -> Unit,
         phoneNumber: String? = null,
+        callback: (Boolean, String?) -> Unit,
     ){
         var uuid = UUID.randomUUID().toString();
 
