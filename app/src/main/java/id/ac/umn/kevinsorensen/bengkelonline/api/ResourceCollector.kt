@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline.API
+package id.ac.umn.kevinsorensen.bengkelonline.api
 
 import android.net.Uri
 import android.util.Log

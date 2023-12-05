@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline.API
+package id.ac.umn.kevinsorensen.bengkelonline.api
 
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot

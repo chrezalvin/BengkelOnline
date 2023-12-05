@@ -62,9 +62,9 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.API.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.API.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.API.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
+import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
+import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
