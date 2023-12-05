@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -180,23 +181,45 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String) {
                             .width(24.dp))
                      */
                   Icon (
-                        painter = painterResource(id = R.drawable.baseline_person_24),
+                        painter = painterResource(id = R.drawable.baseline_menu_24),
                         contentDescription = null
                   )
                 }
 
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
                 ) {
                     DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_person_24),
+                                contentDescription = null,
+                            )
+                        },
                         text = { Text(username) },
                         onClick = { mContext.startActivity(
                             Intent(mContext, ProfileActivity::class.java)
                                 .putExtra("userId", userId)
-                        ) }
+                        ) },
                     )
                     DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_history_24),
+                                contentDescription = null,
+                            )
+                        },
+                        text = { Text("History") },
+                        onClick = { mContext.startActivity(Intent(mContext, HistoryActivity::class.java)) }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_logout_24),
+                                contentDescription = null,
+                            )
+                        },
                         text = { Text("Log Out") },
                         onClick = { mContext.startActivity(Intent(mContext, MainActivity::class.java)) }
                     )

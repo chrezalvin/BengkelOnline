@@ -142,7 +142,7 @@ fun HomePhone() {
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Tambahkan Video Kondisi Motor Anda Saat ini (Wajib : 1, Maks : 3)",
+            text = "Tambahkan Foto Kondisi Motor Anda Saat ini (Wajib : 1, Maks : 3)",
             fontSize = 15.sp,
             color = Color.Blue,
             textAlign = TextAlign.Center
