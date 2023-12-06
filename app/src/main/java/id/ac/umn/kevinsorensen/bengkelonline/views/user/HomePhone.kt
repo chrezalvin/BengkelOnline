@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,15 +52,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun HomePhone() {
     var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
+    var videoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
+    var showChoiceDialog by remember { mutableStateOf(false) }
+    var currentImageIndex by remember { mutableStateOf(-1) }
 
     val launchers = List(3) { index ->
         rememberLauncherForActivityResult(
@@ -79,13 +85,32 @@ fun HomePhone() {
     }
 
     // Launchers for capturing or selecting images
-    val cLaunchers = List(3) { index ->
+    val cameraLaunchers = List(3) { index ->
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicturePreview()
         ) {
             // Update the corresponding bitmap in the list
-            bitmaps = bitmaps.toMutableList().apply { this[index] = it }.toList()
+            it?.let { bitmap ->
+                bitmaps = bitmaps.toMutableList().apply { this[index] = bitmap }.toList()
+            }
         }
+    }
+
+    val videoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        videoUri = uri
+    }
+
+    val videoCaptureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CaptureVideo()
+    ) { uri: Uri? ->
+        videoUri = uri
+    }
+
+    fun openImagePicker(index: Int) {
+        currentImageIndex = index
+        showChoiceDialog = true
     }
     
     Column(
@@ -128,16 +153,53 @@ fun HomePhone() {
                 .height(100.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(Color.Gray)
+                .clickable {
+                    showDialog = true
+                }
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_add_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.Gray)
-                    .clickable { showDialog = false }
+            if (videoUri != null) {
+                // Tampilkan thumbnail video atau placeholder
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_play_circle_24), // Ganti dengan icon thumbnail video
+                    contentDescription = "Video Thumbnail",
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Gray)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    contentDescription = "Add Video",
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Gray)
+                )
+            }
+        }
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Select Video Source") },
+                confirmButton = {
+                    Button(onClick = {
+                        videoCaptureLauncher.launch()
+                        showDialog = false
+                    }) {
+                        Text("Record Video")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        videoPickerLauncher.launch("video/*")
+                        showDialog = false
+                    }) {
+                        Text("Choose from Gallery")
+                    }
+                }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -175,14 +237,33 @@ fun HomePhone() {
                             .height(100.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(Color.Gray)
-                            .clickable {
-                                launchers[index].launch("image/*")
-                                showDialog = false
-                            }
+                            .clickable { openImagePicker(index) }
                     )
                 }
                 Spacer(modifier = Modifier.width(20.dp))
             }
+        }
+        if (showChoiceDialog) {
+            AlertDialog(
+                onDismissRequest = { showChoiceDialog = false },
+                title = { Text("Pilih Sumber Gambar") },
+                confirmButton = {
+                    Button(onClick = {
+                        cameraLaunchers[currentImageIndex].launch()
+                        showChoiceDialog = false
+                    }) {
+                        Text("Kamera")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        launchers[currentImageIndex].launch("image/*")
+                        showChoiceDialog = false
+                    }) {
+                        Text("Galeri")
+                    }
+                },
+            )
         }
         Spacer(modifier = Modifier.height(20.dp))
         OutlinedTextField(
