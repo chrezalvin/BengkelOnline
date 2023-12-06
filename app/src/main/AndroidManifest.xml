@@ -62,9 +62,6 @@
         <activity android:name=".views.user.HomeUser" />
         <activity android:name=".views.merchant.HomeMerchant" />
         <activity android:name=".views.user.ProfileActivity" />
-        <activity android:name=".HomeUser" />
-        <activity android:name=".HomeMerchant" />
-        <activity android:name=".ProfileActivity" />
     </application>
 
 </manifest>

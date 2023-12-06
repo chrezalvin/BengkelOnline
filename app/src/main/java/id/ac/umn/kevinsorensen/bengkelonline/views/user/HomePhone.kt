@@ -109,9 +109,9 @@ fun HomePhone() {
         contract = ActivityResultContracts.CaptureVideo()
     ) { success: Boolean ->
         if (success) {
-            // Misalnya, tampilkan Toast sebagai konfirmasi
             Toast.makeText(context, "Video Recorded Successfully", Toast.LENGTH_SHORT).show()
-            // Anda bisa memperbarui UI di sini, misalnya dengan menampilkan thumbnail
+        } else {
+            Toast.makeText(context, "Video Recording Failed", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -204,7 +204,7 @@ fun HomePhone() {
                 title = { Text("Select Video Source") },
                 confirmButton = {
                     Button(onClick = {
-                        handleVideoRecording()
+                        videoCaptureLauncher.launch(videoUri)
                         showDialog = false
                     }) {
                         Text("Record Video")
