@@ -14,13 +14,18 @@ data class ForgotPasswordState(
     val emailOrUsernameError: String = "",
     val passwordError: String = "",
     val error: String = "",
-
+    val confirmPasswordError: String = "",
 )
+
 class ForgotPasswordViewModel(database: Firebase): ViewModel() {
     private val userController = UserController(database);
 
     private val _uiState = MutableStateFlow(ForgotPasswordState());
     val uiState = _uiState.asStateFlow();
+
+    init {
+        resetInput();
+    }
 
     var passwordVisibility by mutableStateOf(false)
         private set;
@@ -34,10 +39,7 @@ class ForgotPasswordViewModel(database: Firebase): ViewModel() {
         private set;
 
     fun submitForgotPassword(onSuccess: () -> Unit){
-        emailChecking();
-        passwordChecking();
-
-        if(uiState.value.passwordError.isNotEmpty() || uiState.value.emailOrUsernameError.isNotEmpty()){
+        validate{
             userController.changePassword(emailOrUsername, newPassword, onSuccess){
                 _uiState.value = _uiState.value.copy(error = it);
             }
@@ -63,16 +65,41 @@ class ForgotPasswordViewModel(database: Firebase): ViewModel() {
     fun emailChecking(){
         if(emailOrUsername.isEmpty()){
             _uiState.value = _uiState.value.copy(emailOrUsernameError = "Email or Username must be filled");
-            return;
         }
+        else
+            _uiState.value = _uiState.value.copy(emailOrUsernameError = "");
     }
 
     fun passwordChecking(){
         if(newPassword.isEmpty()){
-            _uiState.value = _uiState.value.copy(passwordError = "Password must be filled");
+            _uiState.value = _uiState.value.copy(passwordError = "please fill out this field!");
+        }
+        else
+            _uiState.value = _uiState.value.copy(passwordError = "");
+    }
+
+    fun confirmPasswordChecking(){
+        if(confirmPassword.isEmpty()){
+            _uiState.value = _uiState.value.copy(confirmPasswordError = "please fill out this field!");
         }
         else if(newPassword != confirmPassword){
-            _uiState.value = _uiState.value.copy(passwordError = "Password must be same");
+            _uiState.value = _uiState.value.copy(confirmPasswordError = "Confirm password does not match!");
+        }
+        else
+            _uiState.value = _uiState.value.copy(confirmPasswordError = "");
+    }
+
+    private fun validate(onSuccess: () -> Unit){
+        emailChecking();
+        passwordChecking();
+        confirmPasswordChecking();
+
+        if(
+            _uiState.value.emailOrUsernameError.isEmpty() &&
+            _uiState.value.passwordError.isEmpty() &&
+            _uiState.value.confirmPasswordError.isEmpty()
+        ){
+            onSuccess();
         }
     }
 

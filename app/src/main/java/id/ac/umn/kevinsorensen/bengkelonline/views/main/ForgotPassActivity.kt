@@ -1,5 +1,6 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -61,14 +62,18 @@ class ForgotPassActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val firebase = Firebase
+        val activity = this;
         setContent {
-            ForgotPassWrapper(forgotPasswordViewModel = ForgotPasswordViewModel(firebase));
+            ForgotPassWrapper(this, forgotPasswordViewModel = ForgotPasswordViewModel(firebase));
         }
     }
 }
 
 @Composable
-fun ForgotPassWrapper(forgotPasswordViewModel: ForgotPasswordViewModel = viewModel()){
+fun ForgotPassWrapper(
+    activity: Activity,
+    forgotPasswordViewModel: ForgotPasswordViewModel = viewModel()
+){
     val uiState by forgotPasswordViewModel.uiState.collectAsState();
 
     ForgotPass(
@@ -76,11 +81,19 @@ fun ForgotPassWrapper(forgotPasswordViewModel: ForgotPasswordViewModel = viewMod
         password = forgotPasswordViewModel.newPassword,
         updateEmailOrUsername = {forgotPasswordViewModel.updateEmailOrUsername(it)} ,
         updatePassword = {forgotPasswordViewModel.updateNewPassword(it)},
+        passwordVisible = forgotPasswordViewModel.passwordVisibility,
         togglePasswordVisibility = { forgotPasswordViewModel.togglePasswordVisibility() },
-        errorMessage = uiState.error,
-        onLogin = {},
+        onLogin = {
+              forgotPasswordViewModel.submitForgotPassword {
+                  activity.finish()
+              }
+        },
         confirmPassword = forgotPasswordViewModel.confirmPassword,
-        updateConfirmPassword = {forgotPasswordViewModel.updateConfirmPassword(it)}
+        updateConfirmPassword = {forgotPasswordViewModel.updateConfirmPassword(it)},
+        errorMessage = uiState.error,
+        emailOrUsernameError = uiState.emailOrUsernameError,
+        passwordError = uiState.passwordError,
+        confirmPasswordError = uiState.confirmPasswordError,
     )
 }
 
@@ -88,6 +101,9 @@ fun ForgotPassWrapper(forgotPasswordViewModel: ForgotPasswordViewModel = viewMod
 @Composable
 fun ForgotPass(
     errorMessage: String = "",
+    emailOrUsernameError: String = "",
+    passwordError: String = "",
+    confirmPasswordError: String = "",
     user: User? = null,
     emailOrUsername: String = "",
     password: String = "",
@@ -100,10 +116,6 @@ fun ForgotPass(
     onLogin: () -> Unit,
 ) {
     val mContext = LocalContext.current
-    // placeholder for real error, don't use toast
-    if(errorMessage.isNotEmpty()){
-        Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
-    }
 
     // if user defined, immediately switch activity
     if(user != null){
@@ -141,22 +153,26 @@ fun ForgotPass(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 40.dp)
         )
-        TextField (
+        TextField(
             value = emailOrUsername,
             onValueChange = {
                 updateEmailOrUsername(it)
             },
             label = {
-                Text(text = "Email")
+                Text(text = "Email or Username")
+            },
+            isError = emailOrUsernameError.isNotEmpty(),
+            supportingText = {
+                Text(text = emailOrUsernameError)
             },
             leadingIcon = {
-                Icon (
+                Icon(
                     painter = painterResource(id = R.drawable.baseline_person_24),
                     contentDescription = null
                 )
             },
             trailingIcon = {
-                if(emailOrUsername.isNotEmpty()) {
+                if (emailOrUsername.isNotEmpty()) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_close_24),
                         contentDescription = null,
@@ -191,10 +207,14 @@ fun ForgotPass(
                 updatePassword(it)
             },
             label = {
-                Text(text="New Password")
+                Text(text = "New Password")
             },
+            supportingText = {
+                Text(text = passwordError)
+            },
+            isError = passwordError.isNotEmpty(),
             leadingIcon = {
-                Icon (
+                Icon(
                     painter = painterResource(id = R.drawable.baseline_lock_24),
                     contentDescription = null
                 )
@@ -203,11 +223,10 @@ fun ForgotPass(
                 if (password.isNotEmpty()) {
                     val visibilityIcon = if (passwordVisible) {
                         painterResource(id = R.drawable.baseline_visibility_24)
-                    }
-                    else {
+                    } else {
                         painterResource(id = R.drawable.baseline_visibility_off_24)
                     }
-                    Icon (
+                    Icon(
                         painter = visibilityIcon,
                         contentDescription = null,
                         Modifier.clickable {
@@ -218,8 +237,7 @@ fun ForgotPass(
             },
             visualTransformation = if (passwordVisible) {
                 VisualTransformation.None
-            }
-            else {
+            } else {
                 PasswordVisualTransformation()
             },
             colors = TextFieldDefaults.textFieldColors(
@@ -231,7 +249,7 @@ fun ForgotPass(
                 unfocusedLabelColor = Color.Blue,
                 unfocusedLeadingIconColor = Color.Blue
             ),
-            textStyle = TextStyle (
+            textStyle = TextStyle(
                 color = Color.Blue,
                 fontSize = 16.sp
             ),
@@ -247,10 +265,14 @@ fun ForgotPass(
                 updateConfirmPassword(it)
             },
             label = {
-                Text(text="Confirm Password")
+                Text(text = "Confirm Password")
+            },
+            isError = confirmPasswordError.isNotEmpty(),
+            supportingText = {
+                Text(text = confirmPasswordError)
             },
             leadingIcon = {
-                Icon (
+                Icon(
                     painter = painterResource(id = R.drawable.baseline_lock_24),
                     contentDescription = null
                 )
@@ -259,11 +281,10 @@ fun ForgotPass(
                 if (password.isNotEmpty()) {
                     val visibilityIcon = if (passwordVisible) {
                         painterResource(id = R.drawable.baseline_visibility_24)
-                    }
-                    else {
+                    } else {
                         painterResource(id = R.drawable.baseline_visibility_off_24)
                     }
-                    Icon (
+                    Icon(
                         painter = visibilityIcon,
                         contentDescription = null,
                         Modifier.clickable {
@@ -274,8 +295,7 @@ fun ForgotPass(
             },
             visualTransformation = if (passwordVisible) {
                 VisualTransformation.None
-            }
-            else {
+            } else {
                 PasswordVisualTransformation()
             },
             colors = TextFieldDefaults.textFieldColors(
@@ -287,7 +307,7 @@ fun ForgotPass(
                 unfocusedLabelColor = Color.Blue,
                 unfocusedLeadingIconColor = Color.Blue
             ),
-            textStyle = TextStyle (
+            textStyle = TextStyle(
                 color = Color.Blue,
                 fontSize = 16.sp
             ),
@@ -297,10 +317,10 @@ fun ForgotPass(
             singleLine = true
         )
         Spacer(modifier = Modifier.height(40.dp))
-        Button (
+        Button(
             modifier = Modifier
                 .height(50.dp)
-                .width(200.dp),
+                .width(300.dp),
             onClick = {
                 onLogin();
             },
@@ -309,10 +329,18 @@ fun ForgotPass(
             )
         ) {
             Text(
-                text = "Reset",
+                text = "Change Password",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        if(errorMessage.isNotEmpty()){
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontSize = 16.sp,
+            );
         }
     }
 }

@@ -1,5 +1,6 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -33,6 +34,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,9 +51,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.firestore.auth.User
+import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.MerchantLoginViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.main.ui.theme.BengkelOnlineTheme
 import id.ac.umn.kevinsorensen.bengkelonline.views.merchant.HomeMerchant
@@ -59,20 +65,55 @@ class LoginMerchantActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LoginMerchant(
-                updateEmailOrUsername = {} ,
-                togglePasswordVisibility = { /*TODO*/ },
-                onLogin = { /*TODO*/ }
-            )
+            LoginMerchantWrapper(this, MerchantLoginViewModel(Firebase))
         }
     }
 }
+
+@Composable
+fun LoginMerchantWrapper(
+    activity: Activity,
+    loginMerchantLoginViewModel: MerchantLoginViewModel = viewModel()
+)
+{
+    val uiState by loginMerchantLoginViewModel.uiState.collectAsState();
+
+    LoginMerchant(
+        updateEmailOrUsername = {
+            loginMerchantLoginViewModel.updateEmailOrUsername(it);
+        },
+        emailOrUsername = loginMerchantLoginViewModel.inputEmailOrUsername,
+        togglePasswordVisibility = {
+            loginMerchantLoginViewModel.togglePasswordVisibility();
+        },
+        passwordVisible = loginMerchantLoginViewModel.inputPasswordVisibility,
+        password = loginMerchantLoginViewModel.inputPassword,
+        updatePassword = {
+            loginMerchantLoginViewModel.updatePassword(it);
+        },
+        onLogin = {
+            loginMerchantLoginViewModel.submitLogin {
+                if(it != null) {
+                    val intent = Intent(activity, HomeMerchant::class.java)
+                    activity.startActivity(intent)
+                }
+            }
+        },
+        emailOrUsernameError = uiState.usernameError,
+        passwordError = uiState.passwordError,
+        errorMessage = uiState.error,
+    );
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginMerchant(
     errorMessage: String = "",
+    emailOrUsernameError: String = "",
+    passwordError: String = "",
     user: User? = null,
     emailOrUsername: String = "",
+    updatePassword: (String) -> Unit,
     password: String = "",
     passwordVisible: Boolean = true,
     updateEmailOrUsername: (String) -> Unit,
@@ -80,10 +121,6 @@ fun LoginMerchant(
     onLogin: () -> Unit,
 ) {
     val mContext = LocalContext.current
-    // placeholder for real error, don't use toast
-    if(errorMessage.isNotEmpty()){
-        Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
-    }
 
     // if user defined, immediately switch activity
     if(user != null){
@@ -123,6 +160,10 @@ fun LoginMerchant(
             value = emailOrUsername,
             onValueChange = {
                 updateEmailOrUsername(it)
+            },
+            isError = emailOrUsernameError.isNotEmpty(),
+            supportingText = {
+                Text(text = emailOrUsernameError)
             },
             label = {
                 Text(text = "Username")
@@ -166,10 +207,14 @@ fun LoginMerchant(
         TextField(
             value = password,
             onValueChange = {
-
+                updatePassword(it)
             },
             label = {
                 Text(text="Password")
+            },
+            isError = passwordError.isNotEmpty(),
+            supportingText = {
+                Text(text = passwordError)
             },
             leadingIcon = {
                 Icon (
@@ -279,6 +324,13 @@ fun LoginMerchant(
                     // fontSize = 26.sp,
                     // fontFamily = FontFamily.Cursive
                 )
+            )
+        }
+
+        if(errorMessage.isNotEmpty()){
+            Text(
+                text = errorMessage,
+                color = Color.Red
             )
         }
     }
