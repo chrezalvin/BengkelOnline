@@ -1,5 +1,6 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.user
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -53,8 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.core.content.FileProvider
+import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import io.grpc.Context
 import java.io.File
 
@@ -69,6 +75,8 @@ fun HomePhone() {
     var text by remember { mutableStateOf("") }
     var showChoiceDialog by remember { mutableStateOf(false) }
     var currentImageIndex by remember { mutableStateOf(-1) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val mContext = LocalContext.current
 
     val launchers = List(3) { index ->
         rememberLauncherForActivityResult(
@@ -109,7 +117,7 @@ fun HomePhone() {
         val tempFile = File.createTempFile("capture_", ".mp4", context.externalCacheDir)
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", tempFile)
     }
-    
+
     fun openImagePicker(index: Int) {
         currentImageIndex = index
         showChoiceDialog = true
@@ -160,17 +168,79 @@ fun HomePhone() {
                 }
         ) {
             if (videoUri != null) {
-                // Tampilkan thumbnail video atau placeholder
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_play_circle_24), // Ganti dengan icon thumbnail video
-                    contentDescription = "Video Thumbnail",
+                Box(
                     modifier = Modifier
                         .width(100.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.Gray)
-                )
-            } else {
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_play_circle_24),
+                        contentDescription = "Video Thumbnail",
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.End // Align items to the end (right)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                if (videoUri != null) {
+                                    showDeleteDialog = true
+                                }
+                            },
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clip(RoundedCornerShape(4.dp))
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_delete_24),
+                                contentDescription = "Trash",
+                                tint = Color.White
+                            )
+
+                            if (showDeleteDialog) {
+                                AlertDialog(
+                                    onDismissRequest = {
+                                        showDeleteDialog = false
+                                    },
+                                    title = {
+                                        Text("Delete")
+                                    },
+                                    text = {
+                                        Text("Are you sure you want to Delete?")
+                                    },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
+                                                videoUri = null
+                                                showDeleteDialog = false
+                                            }
+                                        ) {
+                                            Text("Yes")
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = {
+                                                showDeleteDialog = false
+                                            }
+                                        ) {
+                                            Text("No")
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            else {
                 Image(
                     painter = painterResource(id = R.drawable.baseline_add_24),
                     contentDescription = "Add Video",
