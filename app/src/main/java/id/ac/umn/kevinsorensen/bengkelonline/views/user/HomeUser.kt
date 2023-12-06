@@ -3,6 +3,7 @@ package id.ac.umn.kevinsorensen.bengkelonline.views.user
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,8 +43,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.rememberCameraPositionState
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
@@ -65,6 +75,51 @@ sealed class BottomNavItem (
 }
 
 class HomeUser : ComponentActivity() {
+
+    private var permissions = arrayOf(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+        android.Manifest.permission.INTERNET
+    )
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    private var locationRequired: Boolean = false
+
+    override fun onResume() {
+        super.onResume()
+        if (locationRequired) {
+            startLocationUpdates()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        locationCallback?.let {
+            fusedLocationClient?.removeLocationUpdates(it)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        locationCallback?.let {
+            val locationRequest = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY, 100
+            )
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateIntervalMillis(3000)
+                .setMaxUpdateDelayMillis(100)
+                .build()
+
+            fusedLocationClient?.requestLocationUpdates(
+                locationRequest,
+                it,
+                Looper.getMainLooper()
+            )
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +165,36 @@ class HomeUser : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                HomeMaps()
+                                val mapsActivity = MapsActivity()
+                                var currentLocation by remember {
+                                    mutableStateOf(com.google.android.gms.maps.model.LatLng(0.toDouble(), 0.toDouble()))
+                                }
+                                val cameraPosition = rememberCameraPositionState{
+                                    position = CameraPosition.fromLatLngZoom(
+                                        currentLocation, 10f
+                                    )
+                                }
+
+                                var cameraPositionState by remember {
+                                    mutableStateOf(cameraPosition)
+                                }
+
+                                locationCallback = object: LocationCallback() {
+                                    override fun onLocationResult(p0: LocationResult) {
+                                        super.onLocationResult(p0)
+                                        for(location in p0.locations) {
+                                            currentLocation = LatLng(location.latitude, location.longitude)
+
+                                            cameraPositionState = CameraPositionState(
+                                                position = CameraPosition.fromLatLngZoom(
+                                                    currentLocation, 10f
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+
+                                mapsActivity.LocationScreen(this@HomeUser, currentLocation, cameraPositionState )
                             }
                         }
                         composable(BottomNavItem.Phone.route) {

@@ -16,4 +16,6 @@
     <string name="title_activity_login_merchant">LoginMerchantActivity</string>
     <string name="title_activity_register_merchant">RegisterMerchantActivity</string>
     <string name="title_activity_history">HistoryActivity</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_phone">PhoneActivity</string>
 </resources>
