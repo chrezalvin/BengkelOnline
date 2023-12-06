@@ -105,27 +105,11 @@ fun HomePhone() {
         videoUri = uri
     }
 
-    val videoCaptureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CaptureVideo()
-    ) { success: Boolean ->
-        if (success) {
-            Toast.makeText(context, "Video Recorded Successfully", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(context, "Video Recording Failed", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     fun createTempFileUri(): Uri {
         val tempFile = File.createTempFile("capture_", ".mp4", context.externalCacheDir)
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", tempFile)
     }
-
-
-    fun handleVideoRecording() {
-        videoUri = createTempFileUri() // Memperbarui Uri untuk video
-        videoCaptureLauncher.launch(videoUri) // Memulai perekaman video
-    }
-
+    
     fun openImagePicker(index: Int) {
         currentImageIndex = index
         showChoiceDialog = true
@@ -204,7 +188,6 @@ fun HomePhone() {
                 title = { Text("Select Video Source") },
                 confirmButton = {
                     Button(onClick = {
-                        videoCaptureLauncher.launch(videoUri)
                         showDialog = false
                     }) {
                         Text("Record Video")
