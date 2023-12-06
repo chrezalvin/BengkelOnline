@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class LoginState(
-    val user: User? = null,
     val error: String = "",
+    val passwordError: String = "",
+    val emailOrUsernameError: String = "",
     val pageIndex: Int = 0
 )
 
@@ -56,29 +57,68 @@ class LoginViewModel: ViewModel() {
         }
     }
 
-    fun resetInputs() {
+    private fun resetInputs() {
         inputPassword = "";
         inputEmailOrUsername = "";
     }
 
-    fun login() {
-        if (inputEmailOrUsername.isEmpty() || inputPassword.isEmpty()) {
-            _uiState.update { loginState ->
-                loginState.copy(error = "Please fill out the username and password first!");
+    private fun passwordChecking(){
+        if(inputPassword.isEmpty()){
+            _uiState.value = _uiState.value.copy(passwordError = "Please fill out this field");
+        }
+        else{
+            _uiState.value = _uiState.value.copy(passwordError = "");
+        }
+    }
+
+    private fun emailOrUsernameChecking(){
+        if(inputEmailOrUsername.isEmpty()){
+            _uiState.value = _uiState.value.copy(emailOrUsernameError = "Please fill out this field");
+        }
+        else{
+            _uiState.value = _uiState.value.copy(emailOrUsernameError = "");
+        }
+    }
+
+    private fun validateInputs(onSuccess: () -> Unit){
+        passwordChecking();
+        emailOrUsernameChecking();
+
+        if(
+            _uiState.value.emailOrUsernameError.isEmpty() &&
+            _uiState.value.passwordError.isEmpty() &&
+            _uiState.value.error.isEmpty()
+        ){
+            _uiState.value = _uiState.value.copy(error = "", emailOrUsernameError = "", passwordError = "");
+            onSuccess();
+        }
+    }
+
+    fun login(onSuccess: (User) -> Unit) {
+        validateInputs {
+            userController.getUser(inputEmailOrUsername, inputPassword) {
+                if (it != null) {
+                    resetInputs();
+                    onSuccess(it);
+                } else {
+                    _uiState.update { loginState ->
+                        loginState.copy(error = "Incorrect username or password!");
+                    }
+                }
             }
         }
+    }
 
-        userController.getUser(inputEmailOrUsername, inputPassword) {
-            if (it != null) {
-                resetInputs();
-                _uiState.update { loginState ->
-                    Log.d("LoginViewModel", "user: $it");
-                    loginState.copy(user = it)
-                }
-            } else {
-                _uiState.update { loginState ->
-                    loginState.copy(error = "Incorrect username or password!");
-                }
+    fun merchantLogin(onSuccess: (User) -> Unit){
+        userController.getUser(inputEmailOrUsername, inputPassword){
+            if(it == null){
+                _uiState.value = _uiState.value.copy(error = "incorrect Username or password");
+            }
+            else if(it.role != "merchant"){
+                _uiState.value = _uiState.value.copy(error = "You are not a merchant");
+            }
+            else{
+                onSuccess(it);
             }
         }
     }

@@ -1,5 +1,6 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.main
 
+import android.app.Activity
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -43,13 +44,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.location.LocationServices
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 
 @Composable
-fun LoginActivity() {
+fun LoginActivity(activity: Activity) {
     Column (
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
@@ -69,16 +71,16 @@ fun LoginActivity() {
         modifier = Modifier
             .fillMaxSize()
     ){
-        TabLayout()
+        TabLayout(activity)
     }
 }
 
 @Composable
-fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
+fun TabLayout(
+    activity: Activity,
+    loginViewModel: LoginViewModel = viewModel()
+) {
     val loginState by loginViewModel.uiState.collectAsState();
-    val tabs = listOf("User")
-    val navController = rememberNavController()
-    val context = LocalContext.current;
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -88,62 +90,62 @@ fun TabLayout(loginViewModel: LoginViewModel = viewModel()) {
             .padding(top = 275.dp)
             .background(Color.White)
     ) {
-        when (loginState.pageIndex) {
-            0 -> LoginUser(
-                onRegisterUser = {
-                    val intent = Intent(context, RegisterActivity::class.java);
-                    context.startActivity(intent);
-                },
-                navController = navController,
-                errorMessage = loginState.error,
-                user = loginState.user,
-                emailOrUsername = loginViewModel.inputEmailOrUsername,
-                password = loginViewModel.inputPassword,
-                passwordVisible = loginViewModel.passwordVisibility,
-                onLogin = { loginViewModel.login() },
-                togglePasswordVisibility = { loginViewModel.togglePasswordVisibility() },
-                updateEmailOrUsername = { loginViewModel.updateEmailOrUsername(it) },
-                updatePassword = { loginViewModel.updatePassword(it) }
-            )
-            /*
-            1 -> LoginMerchant()
-             */
-        }
+        LoginUser(
+            onRegisterUser = {
+                val intent = Intent(activity, RegisterActivity::class.java);
+                activity.startActivity(intent);
+            },
+            onLogin = {
+                loginViewModel.login() {
+                    val intent = Intent(activity, HomeUser::class.java)
+                        .putExtra("userId", it.id);
+
+                    activity.startActivity(
+                        intent
+                    )
+                }
+            },
+            onMerchantLogin = {
+                loginViewModel.merchantLogin {
+                    val intent = Intent(activity, LoginMerchantActivity::class.java)
+                        .putExtra("userId", it.id);
+                    activity.startActivity(intent);
+                }
+            },
+            onForgotPassword = {
+                val intent = Intent(activity, ForgotPassActivity::class.java);
+                activity.startActivity(intent);
+            },
+            emailOrUsername = loginViewModel.inputEmailOrUsername,
+            password = loginViewModel.inputPassword,
+            passwordVisible = loginViewModel.passwordVisibility,
+            togglePasswordVisibility = { loginViewModel.togglePasswordVisibility() },
+            updateEmailOrUsername = { loginViewModel.updateEmailOrUsername(it) },
+            updatePassword = { loginViewModel.updatePassword(it) },
+            errorMessage = loginState.error,
+            passwordError = loginState.passwordError,
+            emailOrUsernameError = loginState.emailOrUsernameError,
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginUser(
-    errorMessage: String = "",
-    user: User? = null,
     emailOrUsername: String = "",
     password: String = "",
     passwordVisible: Boolean = true,
-    updateEmailOrUsername: (String) -> Unit,
-    updatePassword: (String) -> Unit,
-    togglePasswordVisibility: () -> Unit,
-    onLogin: () -> Unit,
-    onRegisterUser: () -> Unit,
-    navController: NavController
+    updateEmailOrUsername: (String) -> Unit = {},
+    updatePassword: (String) -> Unit = {},
+    togglePasswordVisibility: () -> Unit = {},
+    onLogin: () -> Unit = {},
+    onRegisterUser: () -> Unit = {},
+    onMerchantLogin: () -> Unit = {},
+    onForgotPassword: () -> Unit = {},
+    errorMessage: String = "",
+    passwordError: String = "",
+    emailOrUsernameError: String = ""
 ) {
-    val mContext = LocalContext.current
-    // placeholder for real error, don't use toast
-    if(errorMessage.isNotEmpty()){
-        Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
-    }
-
-    // if user defined, immediately switch activity
-    if(user != null){
-        val intent = Intent(LocalContext.current, HomeUser::class.java)
-            .putExtra("userId", user.id)
-            .putExtra("username", user.username);
-
-        LocalContext.current.startActivity(
-            intent
-        )
-    }
-
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -164,6 +166,10 @@ fun LoginUser(
             },
             label = {
                 Text(text = "Username")
+            },
+            isError = emailOrUsernameError.isNotEmpty(),
+            supportingText = {
+                Text(text = emailOrUsernameError)
             },
             leadingIcon = {
                 Icon (
@@ -208,6 +214,10 @@ fun LoginUser(
             },
             label = {
                 Text(text="Password")
+            },
+            isError = passwordError.isNotEmpty(),
+            supportingText = {
+                Text(text = passwordError)
             },
             leadingIcon = {
                 Icon (
@@ -261,7 +271,7 @@ fun LoginUser(
             ClickableText(
                 text = AnnotatedString("Forgot Password"),
                 onClick = {
-                    mContext.startActivity(Intent(mContext, ForgotPassActivity::class.java))
+                    onForgotPassword();
                 },
                 style = TextStyle(
                     color = Color.Gray,
@@ -274,7 +284,7 @@ fun LoginUser(
             ClickableText(
                 text = AnnotatedString("Log in As Merchant"),
                 onClick = {
-                    mContext.startActivity(Intent(mContext, LoginMerchantActivity::class.java))
+                    onMerchantLogin();
                 },
                 style = TextStyle(
                     color = Color.Gray,
@@ -310,7 +320,7 @@ fun LoginUser(
             ClickableText(
                 text = AnnotatedString("Register Account"),
                 onClick = {
-                    mContext.startActivity(Intent(mContext, RegisterActivity::class.java))
+                    onRegisterUser();
                 },
                 style = TextStyle(
                     color = Color.Blue,
@@ -319,6 +329,8 @@ fun LoginUser(
                 )
             )
         }
+        if(errorMessage.isNotEmpty())
+            Text(text = errorMessage, color = Color.Red);
     }
 }
 

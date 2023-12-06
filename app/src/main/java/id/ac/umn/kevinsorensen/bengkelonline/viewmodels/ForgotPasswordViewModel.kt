@@ -22,10 +22,6 @@ class ForgotPasswordViewModel(database: Firebase): ViewModel() {
     private val _uiState = MutableStateFlow(ForgotPasswordState());
     val uiState = _uiState.asStateFlow();
 
-    init {
-        resetInput();
-    }
-
     var passwordVisibility by mutableStateOf(false)
         private set;
     var emailOrUsername by mutableStateOf("")
@@ -36,6 +32,10 @@ class ForgotPasswordViewModel(database: Firebase): ViewModel() {
 
     var confirmPassword by mutableStateOf("")
         private set;
+
+    init {
+        resetInput();
+    }
 
     fun submitForgotPassword(onSuccess: () -> Unit){
         validate{
@@ -103,8 +103,8 @@ class ForgotPasswordViewModel(database: Firebase): ViewModel() {
     }
 
     fun resetInput(){
-        emailOrUsername = "";
-        newPassword = "";
-        confirmPassword = "";
+        this.emailOrUsername = "";
+        this.newPassword = "";
+        this.confirmPassword = "";
     }
 }

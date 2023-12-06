@@ -109,7 +109,7 @@ fun ForgotPass(
     val mContext = LocalContext.current
 
     // if user defined, immediately switch activity
-    if(user != null){
+/*    if(user != null){
         val intent = Intent(LocalContext.current, HomeUser::class.java)
             .putExtra("userId", user.id)
             .putExtra("username", user.username);
@@ -118,7 +118,7 @@ fun ForgotPass(
             intent
         )
 
-    }
+    }*/
     TopAppBar(
         title = {},
         navigationIcon = {
