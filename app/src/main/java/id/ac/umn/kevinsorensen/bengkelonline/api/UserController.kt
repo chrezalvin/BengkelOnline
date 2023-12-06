@@ -6,7 +6,6 @@ import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Address
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import java.security.MessageDigest
 import java.util.UUID

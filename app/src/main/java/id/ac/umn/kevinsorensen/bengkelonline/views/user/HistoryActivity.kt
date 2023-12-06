@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,14 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
-import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.ProfileViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 

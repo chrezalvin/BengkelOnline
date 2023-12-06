@@ -23,9 +23,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -37,11 +34,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
-import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.ProfileViewModel
 

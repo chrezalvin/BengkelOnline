@@ -3,7 +3,6 @@ package id.ac.umn.kevinsorensen.bengkelonline.views.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,19 +44,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.R
-import id.ac.umn.kevinsorensen.bengkelonline.RegisterUsers
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.RegistrationViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
-import id.ac.umn.kevinsorensen.bengkelonline.views.main.ui.theme.BengkelOnlineTheme
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
-import com.google.firebase.ktx.Firebase
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
