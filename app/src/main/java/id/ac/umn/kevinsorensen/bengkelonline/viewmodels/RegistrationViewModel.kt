@@ -103,32 +103,36 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
             _uiState.value = _uiState.value.copy(confirmPasswordError = "");
     }
 
-    fun register(onSuccessRegistration: () -> Unit) {
+    private fun validateInputs(onSuccess: () -> Unit) {
         validateUsername();
         validateEmail();
         validatePassword();
         validateConfirmPassword();
 
-        if (_uiState.value.usernameError != null || _uiState.value.emailError != null || _uiState.value.passwordError != null || _uiState.value.confirmPasswordError != null)
-            return;
-        else {
-            try {
-                val role = if (isMerchant) "merchant" else "user";
-                userController.addUser(
-                    inputEmail,
-                    inputUsername,
-                    inputPassword,
-                    role
-                ) { success, message ->
-                    if (success) {
-                        resetInputs();
-                        _uiState.value = _uiState.value.copy(error = "");
-                        onSuccessRegistration();
-                    } else
-                        _uiState.value = _uiState.value.copy(error = message ?: "");
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message ?: "");
+        if (
+            _uiState.value.usernameError.isEmpty() &&
+            _uiState.value.emailError.isEmpty() &&
+            _uiState.value.passwordError.isEmpty() &&
+            _uiState.value.confirmPasswordError.isEmpty()
+        )
+            onSuccess();
+    }
+
+    fun register(userRole: String = "user", onSuccessRegistration: () -> Unit) {
+        validateInputs(){
+            val role = if (userRole == "merchant") "merchant" else "user";
+            userController.addUser(
+                inputEmail,
+                inputUsername,
+                inputPassword,
+                role
+            ) { success, message ->
+                if (success) {
+                    resetInputs();
+                    _uiState.value = _uiState.value.copy(error = "");
+                    onSuccessRegistration();
+                } else
+                    _uiState.value = _uiState.value.copy(error = message ?: "");
             }
         }
     }

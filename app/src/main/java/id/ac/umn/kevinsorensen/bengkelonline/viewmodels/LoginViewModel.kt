@@ -86,8 +86,7 @@ class LoginViewModel: ViewModel() {
 
         if(
             _uiState.value.emailOrUsernameError.isEmpty() &&
-            _uiState.value.passwordError.isEmpty() &&
-            _uiState.value.error.isEmpty()
+            _uiState.value.passwordError.isEmpty()
         ){
             _uiState.value = _uiState.value.copy(error = "", emailOrUsernameError = "", passwordError = "");
             onSuccess();
@@ -110,15 +109,17 @@ class LoginViewModel: ViewModel() {
     }
 
     fun merchantLogin(onSuccess: (User) -> Unit){
-        userController.getUser(inputEmailOrUsername, inputPassword){
-            if(it == null){
-                _uiState.value = _uiState.value.copy(error = "incorrect Username or password");
-            }
-            else if(it.role != "merchant"){
-                _uiState.value = _uiState.value.copy(error = "You are not a merchant");
-            }
-            else{
-                onSuccess(it);
+        validateInputs {
+            userController.getUser(inputEmailOrUsername, inputPassword){
+                if(it == null){
+                    _uiState.value = _uiState.value.copy(error = "incorrect Username or password");
+                }
+                else if(it.role != "merchant"){
+                    _uiState.value = _uiState.value.copy(error = "You are not a merchant");
+                }
+                else{
+                    onSuccess(it);
+                }
             }
         }
     }

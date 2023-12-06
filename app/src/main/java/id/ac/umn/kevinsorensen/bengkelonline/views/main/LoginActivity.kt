@@ -48,6 +48,7 @@ import com.google.android.gms.location.LocationServices
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
+import id.ac.umn.kevinsorensen.bengkelonline.views.merchant.HomeMerchant
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 
 @Composable
@@ -97,19 +98,17 @@ fun TabLayout(
             },
             onLogin = {
                 loginViewModel.login() {
-                    val intent = Intent(activity, HomeUser::class.java)
-                        .putExtra("userId", it.id);
+                    var intent: Intent =
+                        if (it.role == "merchant") {
+                            Intent(activity, HomeMerchant::class.java)
+                        } else
+                            Intent(activity, HomeUser::class.java)
+                    intent.putExtra("userId", it.id);
+
 
                     activity.startActivity(
                         intent
                     )
-                }
-            },
-            onMerchantLogin = {
-                loginViewModel.merchantLogin {
-                    val intent = Intent(activity, LoginMerchantActivity::class.java)
-                        .putExtra("userId", it.id);
-                    activity.startActivity(intent);
                 }
             },
             onForgotPassword = {
@@ -140,7 +139,6 @@ fun LoginUser(
     togglePasswordVisibility: () -> Unit = {},
     onLogin: () -> Unit = {},
     onRegisterUser: () -> Unit = {},
-    onMerchantLogin: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
     errorMessage: String = "",
     passwordError: String = "",
@@ -284,7 +282,7 @@ fun LoginUser(
             ClickableText(
                 text = AnnotatedString("Log in As Merchant"),
                 onClick = {
-                    onMerchantLogin();
+                    onLogin();
                 },
                 style = TextStyle(
                     color = Color.Gray,

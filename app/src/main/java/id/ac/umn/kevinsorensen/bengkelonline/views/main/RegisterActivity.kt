@@ -84,6 +84,16 @@ fun WrapperFunction(
         email = registrationViewModel.inputEmail,
         password = registrationViewModel.inputPassword,
         confirmPassword = registrationViewModel.inputConfirmPassword,
+        usernameErrorMessage = registerState.usernameError,
+        emailErrorMessage = registerState.emailError,
+        passwordErrorMessage = registerState.passwordError,
+        confirmPasswordErrorMessage = registerState.confirmPasswordError,
+        inputPasswordVisibility = registrationViewModel.inputPasswordVisibility,
+        error = registerState.error,
+        togglePasswordVisibility = {
+            registrationViewModel.togglePasswordVisibility()
+        },
+
         onUsernameChange = {
             registrationViewModel.updateUsername(it);
         },
@@ -96,24 +106,21 @@ fun WrapperFunction(
         onConfirmPasswordChange = {
             registrationViewModel.updateConfirmPassword(it);
         },
-        usernameErrorMessage = registerState.usernameError,
-        emailErrorMessage = registerState.emailError,
-        passwordErrorMessage = registerState.passwordError,
-        confirmPasswordErrorMessage = registerState.confirmPasswordError,
-        inputPasswordVisibility = registrationViewModel.inputPasswordVisibility,
         onRegister = {
             registrationViewModel.register {
                 // finish activity
-                if(registerState.error == null)
-                    return@register;
-                else
-                    activity.finish();
+                activity.finish();
             }
         },
-        error = registerState.error,
-        togglePasswordVisibility = {
-            registrationViewModel.togglePasswordVisibility()
+        onRegisterMerchant = {
+            registrationViewModel.register("merchant") {
+                // finish activity
+                activity.finish();
+            }
         },
+        onBackButton = {
+            activity.finish();
+        }
     )
 }
 
@@ -121,49 +128,32 @@ fun WrapperFunction(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterUser(
-    errorMessage: String = "",
-    user: User? = null,
-    emailOrUsername: String = "",
     password: String = "",
     inputPasswordVisibility: Boolean = false,
-    passwordVisible: Boolean = true,
     togglePasswordVisibility: () -> Unit,
     username: String = "",
     email: String = "",
     confirmPassword: String = "",
+
+    onBackButton: () -> Unit = {},
     onUsernameChange: (String) -> Unit = {},
     onEmailChange: (String) -> Unit = {},
     onPasswordChange: (String) -> Unit = {},
     onConfirmPasswordChange: (String) -> Unit = {},
+    onRegister: () -> Unit = {},
+    onRegisterMerchant: () -> Unit = {},
+
+    error: String = "",
     usernameErrorMessage: String = "",
     emailErrorMessage: String = "",
     passwordErrorMessage: String = "",
     confirmPasswordErrorMessage: String = "",
-    onRegister: () -> Unit = {},
-    error: String = "",
 ) {
-    val mContext = LocalContext.current
-    // placeholder for real error, don't use toast
-    if(errorMessage.isNotEmpty()){
-        Toast.makeText(LocalContext.current, "error: $errorMessage", Toast.LENGTH_LONG);
-    }
-
-    // if user defined, immediately switch activity
-    if(user != null){
-        val intent = Intent(LocalContext.current, HomeUser::class.java)
-            .putExtra("userId", user.id)
-            .putExtra("username", user.username);
-
-        LocalContext.current.startActivity(
-            intent
-        )
-
-    }
     TopAppBar(
         title = {},
         navigationIcon = {
             IconButton(onClick = {
-                mContext.startActivity(Intent(mContext, MainActivity()::class.java))
+                onBackButton();
             }
             ) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
@@ -187,8 +177,8 @@ fun RegisterUser(
         TextField (
             value = username,
             onValueChange = onUsernameChange,
-            label = { Text(usernameErrorMessage ?: "Username") },
-            isError = usernameErrorMessage.isEmpty(),
+            label = { Text("Username") },
+            isError = usernameErrorMessage.isNotEmpty(),
             supportingText = {
                 Text(usernameErrorMessage)
             },
@@ -232,7 +222,7 @@ fun RegisterUser(
             value = email,
             onValueChange = onEmailChange,
             label = { Text("Email") },
-            isError = emailErrorMessage.isEmpty(),
+            isError = emailErrorMessage.isNotEmpty(),
             supportingText = {
                 Text(emailErrorMessage)
             },
@@ -276,7 +266,7 @@ fun RegisterUser(
             value = password,
             onValueChange = onPasswordChange,
             label = { Text("Password") },
-            isError = passwordErrorMessage.isEmpty(),
+            isError = passwordErrorMessage.isNotEmpty(),
             supportingText = {
                 Text(passwordErrorMessage)
             },
@@ -332,7 +322,7 @@ fun RegisterUser(
             value = confirmPassword,
             onValueChange = onConfirmPasswordChange,
             label = { Text("Confirm Password") },
-            isError = confirmPasswordErrorMessage.isEmpty(),
+            isError = confirmPasswordErrorMessage.isNotEmpty(),
             supportingText = {
                 Text(confirmPasswordErrorMessage)
             },
@@ -344,7 +334,7 @@ fun RegisterUser(
             },
             trailingIcon = {
                 if (password.isNotEmpty()) {
-                    val visibilityIcon = if (passwordVisible) {
+                    val visibilityIcon = if (inputPasswordVisibility) {
                         painterResource(id = R.drawable.baseline_visibility_24)
                     }
                     else {
@@ -359,7 +349,7 @@ fun RegisterUser(
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) {
+            visualTransformation = if (inputPasswordVisibility) {
                 VisualTransformation.None
             }
             else {
@@ -383,8 +373,8 @@ fun RegisterUser(
             ),
             singleLine = true
         )
-        if(error != null)
-            Text(error);
+        if(error != "")
+            Text(error, color = Color.Red);
         Spacer(modifier = Modifier.height(40.dp))
         Button (
             modifier = Modifier
@@ -402,6 +392,22 @@ fun RegisterUser(
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
+        Button (
+            modifier = Modifier
+                .height(50.dp)
+                .width(200.dp),
+            onClick = onRegisterMerchant,
+            colors = ButtonDefaults.buttonColors(
+                Color.Blue
+            )
+        ) {
+            Text(
+                text = "Register as Merchant",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
         Row {
             Text(
                 text = "Already Have an Account?  ",
@@ -410,7 +416,7 @@ fun RegisterUser(
             ClickableText(
                 text = AnnotatedString("Login"),
                 onClick = {
-                    mContext.startActivity(Intent(mContext, MainActivity()::class.java))
+                    onBackButton();
                 },
                 style = TextStyle(
                     color = Color.Blue,

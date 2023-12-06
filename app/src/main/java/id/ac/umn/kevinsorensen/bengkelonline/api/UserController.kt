@@ -74,35 +74,52 @@ class UserController(private val database: Firebase){
         phoneNumber: String? = null,
         callback: (Boolean, String?) -> Unit,
     ){
-        var uuid = UUID.randomUUID().toString();
+        // check if user exist within database
+        this.getUser(email, password){
+            if(it != null){
+                callback(false, "User already exist");
+                return@getUser;
+            }
+            else{
+                this.getUser(username, password){
+                    if(it != null){
+                        callback(false, "User already exist");
+                        return@getUser;
+                    }
+                    else{
+                        var uuid = UUID.randomUUID().toString();
 
-        // check if uuid exist within database
-        getUserById(uuid){ user ->
-            if(user != null){
-                // if exist, generate new uuid
-                uuid = UUID.randomUUID().toString();
+                        // check if uuid exist within database
+                        getUserById(uuid){ user ->
+                            if(user != null){
+                                // if exist, generate new uuid
+                                uuid = UUID.randomUUID().toString();
+                            }
+                        }
+
+                        val user = User(
+                            uuid,
+                            username,
+                            email,
+                            hash(password),
+                            if(role == "user" || role == "merchant") role else "user",
+                            null,
+                            phoneNumber,
+                            null,
+                        );
+
+                        firestore.collection(COLLECTION_NAME)
+                            .add(user)
+                            .addOnSuccessListener {
+                                callback(true, null);
+                            }
+                            .addOnFailureListener{
+                                callback(false, it.message);
+                            }
+                    }
+                }
             }
         }
-
-        val user = User(
-            uuid,
-            username,
-            email,
-            hash(password),
-            if(role == "user" || role == "merchant") role else "user",
-            null,
-            phoneNumber,
-            null,
-        );
-
-        firestore.collection(COLLECTION_NAME)
-            .add(user)
-            .addOnSuccessListener {
-                callback(true, null);
-            }
-            .addOnFailureListener{
-                callback(false, it.message);
-            }
     }
 
     fun deleteUser(id: String, callback: (Boolean) -> Unit){
