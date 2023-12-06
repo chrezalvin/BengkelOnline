@@ -135,12 +135,12 @@ fun RegisterUser(
     onEmailChange: (String) -> Unit = {},
     onPasswordChange: (String) -> Unit = {},
     onConfirmPasswordChange: (String) -> Unit = {},
-    usernameErrorMessage: String? = null,
-    emailErrorMessage: String? = null,
-    passwordErrorMessage: String? = null,
-    confirmPasswordErrorMessage: String? = null,
+    usernameErrorMessage: String = "",
+    emailErrorMessage: String = "",
+    passwordErrorMessage: String = "",
+    confirmPasswordErrorMessage: String = "",
     onRegister: () -> Unit = {},
-    error: String? = null,
+    error: String = "",
 ) {
     val mContext = LocalContext.current
     // placeholder for real error, don't use toast
@@ -188,7 +188,10 @@ fun RegisterUser(
             value = username,
             onValueChange = onUsernameChange,
             label = { Text(usernameErrorMessage ?: "Username") },
-            isError = usernameErrorMessage != null,
+            isError = usernameErrorMessage.isEmpty(),
+            supportingText = {
+                Text(usernameErrorMessage)
+            },
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_person_24),
@@ -228,8 +231,11 @@ fun RegisterUser(
         TextField (
             value = email,
             onValueChange = onEmailChange,
-            label = { Text(emailErrorMessage ?: "Email") },
-            isError = emailErrorMessage != null,
+            label = { Text("Email") },
+            isError = emailErrorMessage.isEmpty(),
+            supportingText = {
+                Text(emailErrorMessage)
+            },
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_email_24),
@@ -269,8 +275,11 @@ fun RegisterUser(
         TextField(
             value = password,
             onValueChange = onPasswordChange,
-            label = { Text(passwordErrorMessage ?: "Password") },
-            isError = passwordErrorMessage != null,
+            label = { Text("Password") },
+            isError = passwordErrorMessage.isEmpty(),
+            supportingText = {
+                Text(passwordErrorMessage)
+            },
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_lock_24),
@@ -322,8 +331,11 @@ fun RegisterUser(
         TextField(
             value = confirmPassword,
             onValueChange = onConfirmPasswordChange,
-            label = { Text(confirmPasswordErrorMessage ?: "Confirm Password") },
-            isError = confirmPasswordErrorMessage != null,
+            label = { Text("Confirm Password") },
+            isError = confirmPasswordErrorMessage.isEmpty(),
+            supportingText = {
+                Text(confirmPasswordErrorMessage)
+            },
             leadingIcon = {
                 Icon (
                     painter = painterResource(id = R.drawable.baseline_lock_24),

@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class RegistrationUiState(
-    val error: String? = null,
-    val usernameError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
+    val error: String = "",
+    val usernameError: String = "",
+    val emailError: String = "",
+    val passwordError: String = "",
+    val confirmPasswordError: String = "",
 )
 class RegistrationViewModel(db: Firebase): ViewModel() {
     private val _uiState = MutableStateFlow<RegistrationUiState>(RegistrationUiState());
@@ -75,7 +75,7 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         if(inputUsername.isEmpty())
             _uiState.value = _uiState.value.copy(usernameError = "Please fill out the username first!");
         else
-            _uiState.value = _uiState.value.copy(usernameError = null);
+            _uiState.value = _uiState.value.copy(usernameError = "");
     }
 
     private fun validateEmail(){
@@ -84,14 +84,14 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches())
             _uiState.value = _uiState.value.copy(emailError = "Please fill out the email correctly!");
         else
-            _uiState.value = _uiState.value.copy(emailError = null);
+            _uiState.value = _uiState.value.copy(emailError = "");
     }
 
     private fun validatePassword(){
         if(inputPassword.isEmpty())
             _uiState.value = _uiState.value.copy(passwordError = "Please fill out the password first!");
         else
-            _uiState.value = _uiState.value.copy(passwordError = null);
+            _uiState.value = _uiState.value.copy(passwordError = "");
     }
 
     private fun validateConfirmPassword(){
@@ -100,7 +100,7 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         else if(inputConfirmPassword != inputPassword)
             _uiState.value = _uiState.value.copy(confirmPasswordError = "Confirm password does not match!");
         else
-            _uiState.value = _uiState.value.copy(confirmPasswordError = null);
+            _uiState.value = _uiState.value.copy(confirmPasswordError = "");
     }
 
     fun register(onSuccessRegistration: () -> Unit) {
@@ -122,13 +122,13 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
                 ) { success, message ->
                     if (success) {
                         resetInputs();
-                        _uiState.value = _uiState.value.copy(error = null);
+                        _uiState.value = _uiState.value.copy(error = "");
                         onSuccessRegistration();
                     } else
-                        _uiState.value = _uiState.value.copy(error = message);
+                        _uiState.value = _uiState.value.copy(error = message ?: "");
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message);
+                _uiState.value = _uiState.value.copy(error = e.message ?: "");
             }
         }
     }
