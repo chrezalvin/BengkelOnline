@@ -54,6 +54,9 @@ import androidx.compose.ui.unit.sp
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.core.content.FileProvider
+import io.grpc.Context
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -104,8 +107,23 @@ fun HomePhone() {
 
     val videoCaptureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CaptureVideo()
-    ) { uri: Uri? ->
-        videoUri = uri
+    ) { success: Boolean ->
+        if (success) {
+            // Misalnya, tampilkan Toast sebagai konfirmasi
+            Toast.makeText(context, "Video Recorded Successfully", Toast.LENGTH_SHORT).show()
+            // Anda bisa memperbarui UI di sini, misalnya dengan menampilkan thumbnail
+        }
+    }
+
+    fun createTempFileUri(): Uri {
+        val tempFile = File.createTempFile("capture_", ".mp4", context.externalCacheDir)
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", tempFile)
+    }
+
+
+    fun handleVideoRecording() {
+        videoUri = createTempFileUri() // Memperbarui Uri untuk video
+        videoCaptureLauncher.launch(videoUri) // Memulai perekaman video
     }
 
     fun openImagePicker(index: Int) {
@@ -186,7 +204,7 @@ fun HomePhone() {
                 title = { Text("Select Video Source") },
                 confirmButton = {
                     Button(onClick = {
-                        videoCaptureLauncher.launch()
+                        handleVideoRecording()
                         showDialog = false
                     }) {
                         Text("Record Video")
