@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -19,7 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -76,12 +81,22 @@ fun historyPage(
     val affirmations = remember { DataSource().loadAffirmations() }
 
     Scaffold(
-        topBar = {
-            TopNavigation3(activity)
-        },
+        topBar = { TopNavigation3(activity) },
         content = { p ->
-            Column(modifier = Modifier.padding(p)) {
-                NavigationTop(navController, affirmations)
+            NavHost(navController, startDestination = "list") {
+                composable("list") {
+                    Column(modifier = Modifier.padding(p)) {
+                        NavigationTop(navController, affirmations)
+                    }
+                }
+                composable("detail/{affirmationIndex}",
+                    arguments = listOf(navArgument("affirmationIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val index = backStackEntry.arguments?.getInt("affirmationIndex")
+                    index?.let {
+                        DetailAffirmationScreen(affirmations[it])
+                    }
+                }
             }
         }
     )
@@ -128,21 +143,29 @@ fun NavigationTop(navController: NavController, affirmations: List<Affirmation>)
         )
     }
 
-    displayAffirmations(affirmations) {
-        when (selectedTabIndex) {
-            0 -> it.status == "Berjalan"
-            1 -> it.status == "Selesai"
-            2 -> it.status == "Batal"
-            else -> false
+    displayAffirmations(
+        affirmations = affirmations,
+        filter = {
+            when (selectedTabIndex) {
+                0 -> it.status == "Berjalan"
+                1 -> it.status == "Selesai"
+                2 -> it.status == "Batal"
+                else -> false
+            }
+        },
+        navigateToDetail = { index ->
+            navController.navigate("detail/$index")
         }
-    }
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun displayAffirmations(affirmations: List<Affirmation>, filter: (Affirmation) -> Boolean) {
+fun displayAffirmations(affirmations: List<Affirmation>, filter: (Affirmation) -> Boolean, navigateToDetail: (Int) -> Unit) {
     LazyColumn {
-        items(affirmations.filter(filter)) { affirmation ->
-            Card (
+        itemsIndexed(affirmations.filter(filter)) { index, affirmation ->
+            Card(
+                onClick = { navigateToDetail(index) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -178,6 +201,31 @@ fun displayAffirmations(affirmations: List<Affirmation>, filter: (Affirmation) -
         }
     }
 }
+
+
+@Composable
+fun DetailAffirmationScreen(affirmation: Affirmation) {
+    Column(modifier = Modifier.padding(top = 100.dp)) {
+        Text(
+            text = "Tanggal: ${formatDate(affirmation.tanggal)}",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            text = "Longitude: ${affirmation.longitude}",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            text = "Latitude: ${affirmation.latitude}",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            text = "Bengkel: ${affirmation.namaBengkel}",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        // Additional details can be added here as needed
+    }
+}
+
 
 private fun formatDate(date: Date): String {
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
