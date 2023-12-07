@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -81,7 +82,15 @@ fun historyPage(
     val affirmations = remember { DataSource().loadAffirmations() }
 
     Scaffold(
-        topBar = { TopNavigation3(activity) },
+        topBar = { TopNavigation3(){
+            val route = navController.currentBackStackEntry?.destination?.route
+            if(route == null || route == "list") {
+                activity.finish()
+            }
+            else {
+                navController.navigate("list")
+            }
+        } },
         content = { p ->
             NavHost(navController, startDestination = "list") {
                 composable("list") {
@@ -104,7 +113,7 @@ fun historyPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopNavigation3(activity: ComponentActivity) {
+fun TopNavigation3(onClick: ()->Unit) {
 
     TopAppBar(
         title = {
@@ -113,7 +122,7 @@ fun TopNavigation3(activity: ComponentActivity) {
         navigationIcon = {
             IconButton(onClick = {
                 // destroy activity
-                activity.finish()
+                onClick()
             }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
             }
@@ -161,7 +170,8 @@ fun NavigationTop(navController: NavController, affirmations: List<Affirmation>)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun displayAffirmations(affirmations: List<Affirmation>, filter: (Affirmation) -> Boolean, navigateToDetail: (Int) -> Unit) {
+fun displayAffirmations(affirmations: List<Affirmation>, filter: (Affirmation) -> Boolean,
+                        navigateToDetail: (Int) -> Unit) {
     LazyColumn {
         itemsIndexed(affirmations.filter(filter)) { index, affirmation ->
             Card(
