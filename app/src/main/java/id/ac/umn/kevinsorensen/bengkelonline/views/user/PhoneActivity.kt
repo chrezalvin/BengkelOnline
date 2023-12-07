@@ -105,6 +105,17 @@ fun HomePhone() {
         }
     }
 
+    val videoLaunchers = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CaptureVideo()
+    ) { isVideoCaptured ->
+        if (isVideoCaptured) {
+            videoUri?.let { capturedVideoUri ->
+                videoUri = capturedVideoUri
+            }
+        }
+    }
+
+
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -256,6 +267,7 @@ fun HomePhone() {
                 title = { Text("Select Video Source") },
                 confirmButton = {
                     Button(onClick = {
+                        videoLaunchers.launch(null)
                         showDialog = false
                     }) {
                         Text("Record Video")
