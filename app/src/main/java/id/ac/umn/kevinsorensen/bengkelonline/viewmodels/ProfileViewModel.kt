@@ -16,14 +16,16 @@ data class UiState(
     val error: String? = null,
     val profilePhoto: Uri = Uri.parse(""),
 )
-class ProfileViewModel(profileId: String): ViewModel(){
+class ProfileViewModel(): ViewModel(){
     private val userController = UserController(Firebase);
     private val resourceCollector = ResourceCollector(Firebase.storage);
 
     private val _uiState = MutableStateFlow(UiState());
     val uiState = _uiState.asStateFlow();
 
-    init {
+    fun initializeProfile(profileId: String){
+        if(_uiState.value.user != null) return;
+
         userController.getUserById(profileId){ user ->
             _uiState.update {
                 it.copy(user = user, error = if(user == null) "User not found" else null);
