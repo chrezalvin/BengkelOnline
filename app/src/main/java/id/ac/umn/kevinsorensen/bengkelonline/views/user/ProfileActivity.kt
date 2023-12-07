@@ -50,8 +50,11 @@ class ProfileActivity : ComponentActivity() {
                 errorPage("User not found"){
                     finish();
                 }
-            else
-                profilePage(this, ProfileViewModel(userId));
+            else {
+                val profileViewModel: ProfileViewModel = viewModel();
+                profileViewModel.initializeProfile(userId);
+                profilePage(this, profileViewModel);
+            }
         }
     }
 

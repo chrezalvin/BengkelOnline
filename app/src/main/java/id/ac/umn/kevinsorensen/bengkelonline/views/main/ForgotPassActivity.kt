@@ -54,7 +54,7 @@ class ForgotPassActivity : ComponentActivity() {
         val firebase = Firebase
         val activity = this;
         setContent {
-            ForgotPassWrapper(this, forgotPasswordViewModel = ForgotPasswordViewModel(firebase));
+            ForgotPassWrapper(this );
         }
     }
 }

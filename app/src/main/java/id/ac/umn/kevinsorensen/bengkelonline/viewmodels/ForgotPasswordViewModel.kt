@@ -16,7 +16,7 @@ data class ForgotPasswordState(
     val confirmPasswordError: String = "",
 )
 
-class ForgotPasswordViewModel(database: Firebase): ViewModel() {
+class ForgotPasswordViewModel(database: Firebase = Firebase): ViewModel() {
     private val userController = UserController(database);
 
     private val _uiState = MutableStateFlow(ForgotPasswordState());

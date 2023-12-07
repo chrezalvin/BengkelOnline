@@ -1,10 +1,20 @@
 package id.ac.umn.kevinsorensen.bengkelonline.viewmodels
 
+import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import id.ac.umn.kevinsorensen.bengkelonline.api.ComplaintController
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
@@ -12,58 +22,148 @@ import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 
 data class HomeState(
-    val products: List<Product> = listOf(),
     val user: User? = null,
-    val error: String? = null,
-    val profilePhoto: Uri = Uri.parse(""),
+    val profilePhotoUri: Uri? = null,
+    val bitmaps: List<Bitmap?> = List(3) {null as Bitmap?},
+    val bitmapError: String = "",
+    val locationError: String = "",
+    val error: String = "",
 );
 
-class HomeViewModel(profileId: String): ViewModel(){
+class HomeViewModel(database: Firebase = Firebase): ViewModel(){
     private val _uiState = MutableStateFlow(HomeState());
-    val uiState = _uiState.asStateFlow();
+    val uiState: StateFlow<HomeState> = _uiState.asStateFlow();
 
-    private val productController = ProductController(Firebase.firestore);
-    private val resourceCollector = ResourceCollector(Firebase.storage);
-    private val userController = UserController(Firebase);
+    private val userController = UserController(database);
+    private val complaintController = ComplaintController(database);
+    private val resourceCollector = ResourceCollector(database.storage);
 
-    init {
-        userController.getUserById(profileId){ user ->
-            _uiState.update {
-                it.copy(user = user, error = if(user == null) "User not found" else null);
-            }
+    var currentLocation by mutableStateOf(LatLng(0.0, 0.0))
+        private set;
+
+    var complaintDescription by mutableStateOf("")
+        private set;
+
+    fun initializeHome(profileId: String){
+        if(_uiState.value.user != null) {
+            Log.d("HomeViewModel", "initializeHome: user is not null");
+            return;
         }
 
-        resourceCollector.getProfilePhoto(profileId){ uri ->
-            _uiState.update {
-                it.copy(profilePhoto = uri);
-            }
-        }
+        Log.d("HomeViewModel", "initializeHome: $profileId");
 
-        runBlocking {
-            emitData().collect(){
-                _uiState.update{state ->
-                    state.copy(products = state.products)
+        userController.getUserById(profileId) { user ->
+            if(user != null) {
+                Log.d("HomeViewModel", "initializeHome: $user");
+                resourceCollector.getProfilePhoto(user.photo ?: "") { uri ->
+                    _uiState.update {
+                        it.copy(profilePhotoUri = uri);
+                    }
+                }
+                _uiState.update {
+                    it.copy(user = user);
                 }
             }
-
-            productController.getAllProduct { products ->
-                _uiState.update{
-                    it.copy(products = products);
-                }
-            }
+            else
+                Log.d("HomeViewModel", "initializeHome: user is null")
         }
     }
 
-    private fun emitData(): Flow<List<Product>> = callbackFlow {
-        productController.getAllProduct { products ->
-            trySend(products);
+    fun updateCurrentLocation(lat: Float, long: Float){
+        currentLocation = LatLng(lat.toDouble(), long.toDouble());
+    }
+
+    fun updateComplaintDescription(description: String){
+        complaintDescription = description;
+    }
+
+    fun imagesChecking(){
+        _uiState.update {
+            it.copy(bitmapError = "Please fill out this field");
+        }
+/*
+        if(_uiState.value.bitmaps.count{ it == null } == _uiState.value.bitmaps.size){
+            _uiState.update {
+                it.copy(bitmapError = "Please fill out this field");
+            }
+        }
+        else
+            _uiState.update {
+                it.copy(bitmapError = "");
+            }
+*/
+
+    }
+
+    fun locationChecking(){
+        if(currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0){
+            _uiState.update {
+                it.copy(locationError = "please agree to the location permission first");
+            }
+        }
+        else
+            _uiState.update {
+                it.copy(locationError = "");
+            }
+    }
+
+    fun validateInputs(onSuccess: () -> Unit){
+        imagesChecking();
+        locationChecking();
+
+        if(
+            _uiState.value.bitmapError.isEmpty() &&
+            _uiState.value.locationError.isEmpty()
+            ){
+            onSuccess();
         }
     }
 
+    fun orderComplaint(onSuccess: () -> Unit){
+        Log.d("HomeViewModel", "orderComplaint: ${_uiState.value.user}")
+        validateInputs {  }
+        if(_uiState.value.user == null){
+            _uiState.update {
+                it.copy(error = "User is not logged in");
+            }
+            return;
+        }
+
+        validateInputs {
+            complaintController.submitComplaint(
+                _uiState.value.user!!.id,
+                currentLocation.longitude.toFloat(),
+                currentLocation.latitude.toFloat(),
+                complaintDescription,
+                List(3) {""},
+                onSuccess = {
+                    onSuccess();
+                },
+                onFailure = { ex ->
+                    _uiState.update {
+                        it.copy(error = "Failed to submit complaint: $ex");
+                    }
+                }
+            )
+        }
+    }
+
+    fun updateBitmaps(index: Int, bitmap: Bitmap?){
+        _uiState.update {
+            val bitmaps = it.bitmaps.toMutableList();
+            bitmaps[index] = bitmap;
+            it.copy(bitmaps = bitmaps);
+        }
+    }
+
+    fun updateBitmaps(){
+
+    }
 }
