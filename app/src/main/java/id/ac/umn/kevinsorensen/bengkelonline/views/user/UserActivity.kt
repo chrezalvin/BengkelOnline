@@ -90,7 +90,7 @@ sealed class BottomNavItem (
             )
 }
 
-class HomeUser : ComponentActivity() {
+class UserActivity : ComponentActivity() {
     private var permissions = arrayOf(
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -214,7 +214,7 @@ class HomeUser : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                LocationScreen(this@HomeUser, currentLocation, cameraPositionState)
+                                LocationScreen(this@UserActivity, currentLocation, cameraPositionState)
                             }
                         }
                         composable(BottomNavItem.Phone.route) {

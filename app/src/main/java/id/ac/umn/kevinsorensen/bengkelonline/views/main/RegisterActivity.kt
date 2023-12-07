@@ -50,10 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.R
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.RegistrationViewModel
-import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
-import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

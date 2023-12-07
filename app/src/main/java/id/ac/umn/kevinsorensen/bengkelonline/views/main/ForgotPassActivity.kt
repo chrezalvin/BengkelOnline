@@ -46,7 +46,6 @@ import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.ForgotPasswordViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
-import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
 
 class ForgotPassActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

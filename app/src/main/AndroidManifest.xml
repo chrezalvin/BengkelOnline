@@ -31,16 +31,6 @@
             android:label="@string/title_activity_history"
             android:theme="@style/Theme.BengkelOnline" />
         <activity
-            android:name=".views.main.RegisterMerchantActivity"
-            android:exported="false"
-            android:label="@string/title_activity_register_merchant"
-            android:theme="@style/Theme.BengkelOnline" />
-        <activity
-            android:name=".views.main.LoginMerchantActivity"
-            android:exported="false"
-            android:label="@string/title_activity_login_merchant"
-            android:theme="@style/Theme.BengkelOnline" />
-        <activity
             android:name=".views.main.ForgotPassActivity"
             android:exported="false"
             android:label="@string/title_activity_forgot_pass"

@@ -49,7 +49,7 @@ import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.merchant.HomeMerchant
-import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomeUser
+import id.ac.umn.kevinsorensen.bengkelonline.views.user.UserActivity
 
 @Composable
 fun LoginActivity(activity: Activity) {
@@ -102,7 +102,7 @@ fun TabLayout(
                         if (it.role == "merchant") {
                             Intent(activity, HomeMerchant::class.java)
                         } else
-                            Intent(activity, HomeUser::class.java)
+                            Intent(activity, UserActivity::class.java)
                     intent.putExtra("userId", it.id);
 
 
