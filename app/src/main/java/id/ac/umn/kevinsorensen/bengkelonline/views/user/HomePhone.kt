@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -69,7 +70,7 @@ fun HomePhone(currentLocation: LatLng) {
     var currentImageIndex by remember { mutableStateOf(-1) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
-    var buttonText by remember { mutableStateOf("Get Your Location") }
+    var buttonText by remember { mutableStateOf("Set Your Location") }
 
     val launchers = List(3) { index ->
         rememberLauncherForActivityResult(
@@ -133,183 +134,23 @@ fun HomePhone(currentLocation: LatLng) {
             .fillMaxSize()
             .padding(horizontal = 20.dp)
     ) {
-        Text(
-            text = "Set Your Location",
-            fontSize = 15.sp,
-            color = Color.Blue,
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        if(buttonText != "Get Your Location") {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .background(Color.Blue)
-                    .padding(10.dp)
-            ) {
-                Text(text = buttonText, color = Color.White)
-                Spacer(modifier = Modifier.width(8.dp))
-                IconButton (
-                    onClick = {
-                        buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
-                    }
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Refresh",
-                        tint = Color.White
-                    )
-                }
-            }
-        }
-        else {
-            Button(
-                onClick = {
-                    buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
-                },
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(200.dp),
-                colors = ButtonDefaults.buttonColors(
-                    Color.Blue
-                )
-            ) {
-                Text(text = buttonText)
-            }
-        }
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Tambahkan Video Kondisi Motor Anda Saat ini (Wajib : 1)",
-            fontSize = 15.sp,
-            color = Color.Blue,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Image(
+            painter = painterResource(id = R.drawable.baseline_photo_camera_24),
+            contentDescription = null,
             modifier = Modifier
                 .width(100.dp)
                 .height(100.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color.Gray)
-                .clickable {
-                    showDialog = true
-                }
-        ) {
-            if (videoUri != null) {
-                Box(
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.baseline_play_circle_24),
-                        contentDescription = "Video Thumbnail",
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.End // Align items to the end (right)
-                    ) {
-                        IconButton(
-                            onClick = {
-                                if (videoUri != null) {
-                                    showDeleteDialog = true
-                                }
-                            },
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(MaterialTheme.colorScheme.primary)
-                                .clip(RoundedCornerShape(4.dp))
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_delete_24),
-                                contentDescription = "Trash",
-                                tint = Color.White
-                            )
-
-                            if (showDeleteDialog) {
-                                AlertDialog(
-                                    onDismissRequest = {
-                                        showDeleteDialog = false
-                                    },
-                                    title = {
-                                        Text("Delete")
-                                    },
-                                    text = {
-                                        Text("Are you sure you want to Delete?")
-                                    },
-                                    confirmButton = {
-                                        TextButton(
-                                            onClick = {
-                                                videoUri = null
-                                                showDeleteDialog = false
-                                            }
-                                        ) {
-                                            Text("Yes")
-                                        }
-                                    },
-                                    dismissButton = {
-                                        TextButton(
-                                            onClick = {
-                                                showDeleteDialog = false
-                                            }
-                                        ) {
-                                            Text("No")
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = "Add Video",
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.Gray)
-                )
-            }
-        }
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text("Select Video Source") },
-                confirmButton = {
-                    Button(onClick = {
-                        videoLaunchers.launch(null)
-                        showDialog = false
-                    }) {
-                        Text("Record Video")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = {
-                        videoPickerLauncher.launch("video/*")
-                        showDialog = false
-                    }) {
-                        Text("Choose from Gallery")
-                    }
-                }
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Tambahkan Foto Kondisi Motor Anda Saat ini (Wajib : 1, Maks : 3)",
-            fontSize = 15.sp,
-            color = Color.Blue,
-            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Ambil Foto Motor Anda",
+            fontSize = 15.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(20.dp))
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -325,18 +166,18 @@ fun HomePhone(currentLocation: LatLng) {
                             .width(100.dp)
                             .height(100.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Gray)
+                            .background(Color.LightGray)
                             .clickable { showDialog = false }
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.baseline_image_24),
+                        painter = painterResource(id = R.drawable.baseline_add_24),
                         contentDescription = null,
                         modifier = Modifier
                             .width(100.dp)
                             .height(100.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Gray)
+                            .background(Color.LightGray)
                             .clickable { openImagePicker(index) }
                     )
                 }
@@ -365,25 +206,83 @@ fun HomePhone(currentLocation: LatLng) {
                 },
             )
         }
+        Spacer(modifier = Modifier.height(30.dp))
+        Text(
+            text = "Set Lokasimu",
+            fontSize = 15.sp,
+            color = Color.Black,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+                .padding(20.dp)
+                .width(400.dp)
+                .height(20.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxSize() // Make the Row fill the Box
+            ) {
+                Text(
+                    text = buttonText,
+                    color = Color.Black,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton (
+                    onClick = {
+                        buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
+                    }
+                ){
+                    if(buttonText != "Set Your Location") {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = Color.Black
+                        )
+                    }
+                    else {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Get Location",
+                            tint = Color.Black
+                        )
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Catatan",
+            fontSize = 15.sp,
+            color = Color.Black,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Jelaskan Keluhan Anda") }
+            label = { Text("Jelaskan Keluhan Anda") },
+            modifier = Modifier
+                .width(400.dp)
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(40.dp))
         Button(
             onClick = {
                 // Handle location button click here
             },
             modifier = Modifier
                 .height(50.dp)
-                .width(200.dp),
+                .width(175.dp),
             colors = ButtonDefaults.buttonColors(
-                Color.Blue
+                Color.Red
             )
         ) {
-            Text("Pesan Sekarang")
+            Text("PESAN SEKARANG")
         }
     }
 }

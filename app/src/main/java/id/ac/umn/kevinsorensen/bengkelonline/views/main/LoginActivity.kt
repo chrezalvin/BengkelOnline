@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
@@ -73,6 +74,33 @@ fun LoginActivity(activity: Activity) {
             .fillMaxSize()
     ){
         TabLayout(activity)
+    }
+}
+
+@Composable
+fun ImageColumn() {
+    Column(
+        verticalArrangement = Arrangement.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(267.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.main_pict),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun LoginTabsColumn(activity: Activity) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        TabLayout(activity) // Assuming TabLayout is another composable function
     }
 }
 
@@ -153,7 +181,7 @@ fun LoginUser(
         Text(
             text = "Login",
             fontSize = 20.sp,
-            color = Color.Blue,
+            color = Color.Black,
             fontWeight = Bold,
             modifier = Modifier.padding(bottom = 20.dp)
         )
@@ -191,16 +219,16 @@ fun LoginUser(
             ),
             singleLine = true,
             colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Blue,
-                focusedLabelColor = Color.Blue,
-                focusedLeadingIconColor = Color.Blue,
-                containerColor = Color.White,
-                unfocusedIndicatorColor = Color.Blue,
-                unfocusedLabelColor = Color.Blue,
-                unfocusedLeadingIconColor = Color.Blue
+                focusedIndicatorColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                focusedLeadingIconColor = Color.Black,
+                containerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                unfocusedLeadingIconColor = Color.Black
             ),
             textStyle = TextStyle(
-                color = Color.Blue,
+                color = Color.Black,
                 fontSize = 16.sp
             )
         )
@@ -247,16 +275,16 @@ fun LoginUser(
                 PasswordVisualTransformation()
             },
             colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Blue,
-                focusedLabelColor = Color.Blue,
-                focusedLeadingIconColor = Color.Blue,
-                containerColor = Color.White,
-                unfocusedIndicatorColor = Color.Blue,
-                unfocusedLabelColor = Color.Blue,
-                unfocusedLeadingIconColor = Color.Blue
+                focusedIndicatorColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                focusedLeadingIconColor = Color.Black,
+                containerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                unfocusedLeadingIconColor = Color.Black
             ),
             textStyle = TextStyle (
-                color = Color.Blue,
+                color = Color.Black,
                 fontSize = 16.sp
             ),
             keyboardOptions = KeyboardOptions(
@@ -295,12 +323,12 @@ fun LoginUser(
         Button (
             modifier = Modifier
                 .height(50.dp)
-                .width(200.dp),
+                .width(150.dp),
             onClick = {
                 onLogin();
             },
             colors = ButtonDefaults.buttonColors(
-                Color.Blue
+                Color.Red
             )
         ) {
             Text(
@@ -313,7 +341,7 @@ fun LoginUser(
         Row {
             Text(
                 text = "New User?  ",
-                color = Color.Gray
+                color = Color.Gray,
             )
             ClickableText(
                 text = AnnotatedString("Register Account"),

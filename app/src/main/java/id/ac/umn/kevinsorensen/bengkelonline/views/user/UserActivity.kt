@@ -37,12 +37,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -205,7 +207,7 @@ class UserActivity : ComponentActivity() {
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    TopNavigation(userName, profileUrl, userId)
+                    TopNavigation(userName, profileUrl, userId, navController = navController)
                 },
                 bottomBar = {
                     BottomNavigation(navController = navController)
@@ -297,20 +299,36 @@ class UserActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun TopNavigation(username: String, profileUrl: String?, userId: String) {
+fun TopNavigation(username: String, profileUrl: String?, userId: String, navController: NavController) {
     val contextForToast = LocalContext.current.applicationContext
     val mContext = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    var MenuName by remember { mutableStateOf("Lokasi Anda") } // Set judul awal
+
+    DisposableEffect(navController) {
+        val callback = NavController.OnDestinationChangedListener { controller, _, _ ->
+            // Mengubah judul berdasarkan rute yang saat ini dipilih
+            MenuName = when (controller.currentDestination?.route) {
+                BottomNavItem.Maps.route -> "Lokasi Anda"
+                BottomNavItem.Phone.route -> "Panggil Bengkel"
+                else -> "Judul Default" // Gantilah dengan judul default Anda
+            }
+        }
+        navController.addOnDestinationChangedListener(callback)
+        onDispose {
+            navController.removeOnDestinationChangedListener(callback)
+        }
+    }
 
     TopAppBar(
         colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = Color.White,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         title = {
             Text(
-                "Bengkel Online",
+                text = MenuName,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
