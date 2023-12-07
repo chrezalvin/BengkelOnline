@@ -167,15 +167,22 @@ class UserActivity : ComponentActivity() {
                 mutableStateOf(cameraPosition)
             }
 
+            // Di dalam UserActivity atau di mana `cameraPositionState` didefinisikan
+            var isZoomLevelUserSet = false
+
             locationCallback = object: LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
-                    for(location in p0.locations) {
+                    p0.locations.lastOrNull()?.let { location ->
                         currentLocation = LatLng(location.latitude, location.longitude)
 
-                        val currentZoom = cameraPositionState.position.zoom
-
-                        val zoomLevelToUse = if (currentZoom == 0f) 16f else currentZoom
+                        val zoomLevelToUse = if (isZoomLevelUserSet) {
+                            cameraPositionState.position.zoom
+                        } else {
+                            // Setelah zoom level pertama kali diatur, anggap pengguna telah mengatur zoom
+                            isZoomLevelUserSet = true
+                            16f // Default zoom level
+                        }
 
                         cameraPositionState.position = CameraPosition.fromLatLngZoom(
                             currentLocation, zoomLevelToUse

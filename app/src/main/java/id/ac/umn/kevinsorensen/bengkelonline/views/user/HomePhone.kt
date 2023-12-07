@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -137,18 +139,42 @@ fun HomePhone(currentLocation: LatLng) {
             color = Color.Blue,
         )
         Spacer(modifier = Modifier.height(10.dp))
-        Button(
-            onClick = {
-                buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
-            },
-            modifier = Modifier
-                .height(50.dp)
-                .width(200.dp),
-            colors = ButtonDefaults.buttonColors(
-                Color.Blue
-            )
-        ) {
-            Text(text = buttonText)
+        if(buttonText != "Get Your Location") {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .background(Color.Blue)
+                    .padding(10.dp)
+            ) {
+                Text(text = buttonText, color = Color.White)
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton (
+                    onClick = {
+                        buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
+                    }
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+        else {
+            Button(
+                onClick = {
+                    buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
+                },
+                modifier = Modifier
+                    .height(50.dp)
+                    .width(200.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Color.Blue
+                )
+            ) {
+                Text(text = buttonText)
+            }
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
