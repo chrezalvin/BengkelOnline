@@ -227,7 +227,7 @@ class UserActivity : ComponentActivity() {
                                     .padding(top = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                HomePhone()
+                                HomePhone(currentLocation)
                             }
                         }
                     }

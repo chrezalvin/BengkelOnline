@@ -51,13 +51,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import com.google.android.gms.maps.model.LatLng
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun HomePhone() {
+fun HomePhone(currentLocation: LatLng) {
     var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
@@ -67,6 +67,7 @@ fun HomePhone() {
     var currentImageIndex by remember { mutableStateOf(-1) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
+    var buttonText by remember { mutableStateOf("Get Your Location") }
 
     val launchers = List(3) { index ->
         rememberLauncherForActivityResult(
@@ -138,7 +139,7 @@ fun HomePhone() {
         Spacer(modifier = Modifier.height(10.dp))
         Button(
             onClick = {
-                // Handle location button click here
+                buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
             },
             modifier = Modifier
                 .height(50.dp)
@@ -147,7 +148,7 @@ fun HomePhone() {
                 Color.Blue
             )
         ) {
-            Text("Get Current Location")
+            Text(text = buttonText)
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
