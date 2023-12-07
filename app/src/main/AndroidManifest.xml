@@ -21,11 +21,6 @@
         android:theme="@style/Theme.BengkelOnline"
         tools:targetApi="31">
         <activity
-            android:name=".views.user.PhoneActivity"
-            android:exported="false"
-            android:label="@string/title_activity_phone"
-            android:theme="@style/Theme.BengkelOnline" />
-        <activity
             android:name=".views.user.HistoryActivity"
             android:exported="false"
             android:label="@string/title_activity_history"
@@ -57,7 +52,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.user.HomeUser" />
+        <activity android:name=".views.user.UserActivity" />
         <activity android:name=".views.merchant.HomeMerchant" />
         <activity android:name=".views.user.ProfileActivity" />
     </application>
