@@ -123,7 +123,7 @@ class UserActivity : ComponentActivity() {
                 Priority.PRIORITY_HIGH_ACCURACY, 100
             )
                 .setWaitForAccurateLocation(false)
-                .setMinUpdateIntervalMillis(3000)
+                .setMinUpdateIntervalMillis(100)
                 .setMaxUpdateDelayMillis(100)
                 .build()
 
@@ -173,10 +173,12 @@ class UserActivity : ComponentActivity() {
                     for(location in p0.locations) {
                         currentLocation = LatLng(location.latitude, location.longitude)
 
-                        cameraPositionState = CameraPositionState(
-                            position = CameraPosition.fromLatLngZoom(
-                                currentLocation, 10f
-                            )
+                        val currentZoom = cameraPositionState.position.zoom
+
+                        val zoomLevelToUse = if (currentZoom == 0f) 16f else currentZoom
+
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                            currentLocation, zoomLevelToUse
                         )
                     }
                 }
@@ -214,7 +216,7 @@ class UserActivity : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                LocationScreen(this@UserActivity, currentLocation, cameraPositionState)
+                                LocationScreen(currentLocation, cameraPositionState)
                             }
                         }
                         composable(BottomNavItem.Phone.route) {
@@ -235,7 +237,8 @@ class UserActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LocationScreen(context: Context, currentLocation: LatLng, camerapositionState: CameraPositionState) {
+    fun LocationScreen(currentLocation: LatLng, camerapositionState: CameraPositionState) {
+        val context = LocalContext.current
 
         val launchMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) {
@@ -270,19 +273,15 @@ class UserActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = "Your Location: ${currentLocation.latitude}/${currentLocation.longitude}")
-                Button(onClick = {
-                    if (permissions.all {
-                            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-                        })
-                    {
-                        // Get Location
-                        startLocationUpdates()
-                    }
-                    else {
-                        launchMultiplePermissions.launch(permissions)
-                    }
-                }) {
-                    Text(text = "Get Your Location")
+                if (permissions.all {
+                        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+                    })
+                {
+                    // Get Location
+                    (context as? UserActivity)?.startLocationUpdates()
+                }
+                else {
+                    launchMultiplePermissions.launch(permissions)
                 }
             }
         }
