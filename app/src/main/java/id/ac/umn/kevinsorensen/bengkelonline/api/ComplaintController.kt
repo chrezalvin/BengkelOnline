@@ -39,8 +39,7 @@ class ComplaintController(db: Firebase) {
         lat: Float,
         description: String = "",
         photoUris: List<String>,
-        onSuccess: () -> Unit = {},
-        onFailure: (String) -> Unit = {}
+        onSuccess: (complaintId: String?) -> Unit = {},
     ) {
         val complaint = Complaint(
             UUID.randomUUID().toString(),
@@ -55,10 +54,10 @@ class ComplaintController(db: Firebase) {
         firestore.collection(COLLECTION_NAME)
             .add(complaint)
             .addOnSuccessListener {
-                onSuccess();
+                onSuccess(complaint.id);
             }
             .addOnFailureListener { ex ->
-                onFailure(ex.message.toString());
+                onSuccess(null);
             }
     }
 
