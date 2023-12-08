@@ -299,18 +299,6 @@ fun LoginUser(
                 )
 
             )
-            Spacer(modifier = Modifier.width(50.dp))
-            ClickableText(
-                text = AnnotatedString("Log in As Merchant"),
-                onClick = {
-                    onLogin();
-                },
-                style = TextStyle(
-                    color = Color.Gray,
-                    // fontSize = 26.sp,
-                    // fontFamily = FontFamily.Cursive
-                )
-            )
         }
         Spacer(modifier = Modifier.height(40.dp))
         Button (

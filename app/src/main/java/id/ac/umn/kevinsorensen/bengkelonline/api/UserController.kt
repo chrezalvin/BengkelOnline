@@ -76,16 +76,15 @@ class UserController(private val database: Firebase){
         callback: (Boolean, String?) -> Unit,
     ){
         // check if user exist within database
-        this.getUser(email, password){
-            if(it != null){
+        this.getUser(email, password){userByEmail ->
+            if(userByEmail != null){
                 callback(false, "User already exist");
                 return@getUser;
             }
             else{
-                this.getUser(username, password){
-                    if(it != null){
+                this.getUser(username, password){userByPassword ->
+                    if(userByPassword != null){
                         callback(false, "User already exist");
-                        return@getUser;
                     }
                     else{
                         var uuid = UUID.randomUUID().toString();
@@ -104,9 +103,7 @@ class UserController(private val database: Firebase){
                             email,
                             hash(password),
                             if(role == "user" || role == "merchant") role else "user",
-                            null,
                             phoneNumber,
-                            null,
                         );
 
                         firestore.collection(COLLECTION_NAME)
@@ -214,6 +211,35 @@ class UserController(private val database: Firebase){
 
     }
 
+    fun updateUserLocation(
+        userId: String,
+        long: Float,
+        lat: Float,
+        callback: (Boolean) -> Unit
+    ){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    callback(false);
+                    return@addOnSuccessListener;
+                }
+
+                val document = it.documents[0];
+                document.reference.update("long", long, "lat", lat)
+                    .addOnSuccessListener {
+                        callback(true);
+                    }
+                    .addOnFailureListener{
+                        callback(false);
+                    }
+            }
+            .addOnFailureListener{
+                callback(false);
+            }
+    }
+
     private fun dataValidation(document: DocumentSnapshot): User {
         // these are strings
         val id = document.get("id") as String? ?: throw Exception("id is null");
@@ -223,47 +249,13 @@ class UserController(private val database: Firebase){
         val role = document.get("role") as String? ?: "user";
         val phone = document.get("phoneNumber") as String?;
         val photo = document.get("photo") as String?;
+        var long = document.get("long") as Number?;
+        var lat = document.get("lat") as Number?;
+
+        long = long?.toFloat() ?: 0.0f;
+        lat = lat?.toFloat() ?: 0.0f;
 
         Log.d(TAG, "Got user: id: $id, username: $username, email: $email, password: $password, role: $role, phone: $phone, photo: $photo");
-
-        // nullable string or object
-        var address = document.get("address");
-
-/*        if(address != null){
-            if(address is Map<*, *>){
-                val lat = address["lat"];
-                val long = address["long"];
-                val addressName = address["name"];
-                val desc = address["description"];
-
-                if(lat == null || long == null || addressName == null || desc == null){
-                    if(lat == null)
-                        Log.d(TAG, "lat is null");
-                    if(long == null)
-                        Log.d(TAG, "long is null");
-                    if(addressName == null)
-                        Log.d(TAG, "addressName is null");
-                    if(desc == null)
-                        Log.d(TAG, "desc is null");
-
-                    throw Exception("One of the mentioned variable is null");
-                }
-                else{
-                    if(lat is Number && long is Number){
-                        address = Address(
-                            addressName as String,
-                            lat as Float,
-                            long as Float,
-                            desc as String,
-                        )
-                    }
-                    else
-                        throw Exception("Error on reading address data");
-                }
-            }
-            else
-                throw Exception("Error on reading address data");
-        }*/
 
         return User(
             id,
@@ -271,9 +263,10 @@ class UserController(private val database: Firebase){
             email,
             password,
             role,
-            null,
             phone,
             photo,
+            long as Float,
+            lat as Float
         );
     }
 

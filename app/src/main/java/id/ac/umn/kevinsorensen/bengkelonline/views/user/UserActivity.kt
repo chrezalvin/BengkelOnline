@@ -150,7 +150,13 @@ class UserActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // get userId
-        val userId = intent.getStringExtra("userId")?: "0";
+        val userId = intent.getStringExtra("userId")?: "";
+
+        if(userId == ""){
+            // back to main activity
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        };
 
         MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
 
@@ -171,13 +177,13 @@ class UserActivity : ComponentActivity() {
             val uiState by homeViewModel.uiState.collectAsState();
             homeViewModel.initializeHome(userId);
 
-            var currentLocation by remember {
+/*            var currentLocation by remember {
                 mutableStateOf(LatLng(0.toDouble(), 0.toDouble()))
-            }
+            }*/
 
             val cameraPosition = rememberCameraPositionState{
                 position = CameraPosition.fromLatLngZoom(
-                    currentLocation, 10f
+                    homeViewModel.currentLocation, 10f
                 )
             }
 
@@ -192,7 +198,7 @@ class UserActivity : ComponentActivity() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
                     p0.locations.lastOrNull()?.let { location ->
-                        currentLocation = LatLng(location.latitude, location.longitude)
+                        homeViewModel.updateCurrentLocation(location.latitude.toFloat(), location.longitude.toFloat())
 
                         val zoomLevelToUse = if (isZoomLevelUserSet) {
                             cameraPositionState.position.zoom
@@ -203,7 +209,7 @@ class UserActivity : ComponentActivity() {
                         }
 
                         cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                            currentLocation, zoomLevelToUse
+                            homeViewModel.currentLocation, zoomLevelToUse
                         )
                     }
                 }
@@ -248,7 +254,7 @@ class UserActivity : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                LocationScreen(currentLocation, cameraPositionState)
+                                LocationScreen(homeViewModel.currentLocation, cameraPositionState)
                             }
                         }
                         composable(BottomNavItem.Phone.route) {
@@ -259,7 +265,27 @@ class UserActivity : ComponentActivity() {
                                     .padding(top = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                HomePhone(currentLocation)
+                                HomePhone(
+                                    homeViewModel.currentLocation,
+                                    problemDesc = homeViewModel.complaintDescription,
+                                    bitmaps = uiState.bitmaps,
+
+                                    onProblemDescChange = {
+                                        homeViewModel.updateComplaintDescription(it)
+                                    },
+                                    onOrder = {
+                                        homeViewModel.orderComplaint {
+
+                                        }
+                                    },
+                                    onBitmapUpdate = { index, bitmap ->
+                                        homeViewModel.updateBitmaps(index, bitmap)
+                                    },
+
+                                    error = uiState.error,
+                                    bitmapError = uiState.bitmapError,
+                                    locationError = uiState.locationError,
+                                )
                             }
                         }
                     }
@@ -269,7 +295,10 @@ class UserActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LocationScreen(currentLocation: LatLng, camerapositionState: CameraPositionState) {
+    fun LocationScreen(
+        currentLocation: LatLng,
+        camerapositionState: CameraPositionState
+    ) {
         val context = LocalContext.current
 
         val launchMultiplePermissions = rememberLauncherForActivityResult(

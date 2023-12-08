@@ -60,31 +60,37 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePhone(currentLocation: LatLng) {
-    var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
+fun HomePhone(
+    currentLocation: LatLng = LatLng(0.0, 0.0),
+    problemDesc: String = "",
+    bitmaps: List<Bitmap?> = List(3) { null as Bitmap? },
+
+    onProblemDescChange: (String) -> Unit = {},
+    onBitmapUpdate: (index: Int, Bitmap?) -> Unit = { _, _ -> },
+    onOrder: () -> Unit = {},
+
+    error: String = "",
+    locationError: String = "",
+    bitmapError: String = "",
+) {
+//    var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf("") }
     var showChoiceDialog by remember { mutableStateOf(false) }
     var currentImageIndex by remember { mutableStateOf(-1) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    val mContext = LocalContext.current
-    var buttonText by remember { mutableStateOf("Set Your Location") }
 
     val launchers = List(3) { index ->
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             uri?.let {
-                bitmaps = bitmaps.toMutableList().apply {
-                    this[index] = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                    } else {
-                        val source = ImageDecoder.createSource(context.contentResolver, it)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-                }.toList()
+                onBitmapUpdate(index, if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                } else {
+                    val source = ImageDecoder.createSource(context.contentResolver, it)
+                    ImageDecoder.decodeBitmap(source)
+                })
             }
         }
     }
@@ -95,9 +101,7 @@ fun HomePhone(currentLocation: LatLng) {
             contract = ActivityResultContracts.TakePicturePreview()
         ) {
             // Update the corresponding bitmap in the list
-            it?.let { bitmap ->
-                bitmaps = bitmaps.toMutableList().apply { this[index] = bitmap }.toList()
-            }
+            onBitmapUpdate(index, it)
         }
     }
 
@@ -184,6 +188,13 @@ fun HomePhone(currentLocation: LatLng) {
                 Spacer(modifier = Modifier.width(20.dp))
             }
         }
+        if(bitmapError != ""){
+            Text(
+                text = bitmapError,
+                fontSize = 15.sp,
+                color = Color.Red,
+            )
+        }
         if (showChoiceDialog) {
             AlertDialog(
                 onDismissRequest = { showChoiceDialog = false },
@@ -227,7 +238,8 @@ fun HomePhone(currentLocation: LatLng) {
                     .fillMaxSize() // Make the Row fill the Box
             ) {
                 Text(
-                    text = buttonText,
+                    text = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
+                    ,
                     color = Color.Black,
                     textAlign = TextAlign.Start,
                     modifier = Modifier
@@ -236,10 +248,9 @@ fun HomePhone(currentLocation: LatLng) {
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton (
                     onClick = {
-                        buttonText = "Lat: ${currentLocation.latitude}, Lon: ${currentLocation.longitude}"
                     }
                 ){
-                    if(buttonText != "Set Your Location") {
+                    if(currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0){
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh",
@@ -256,6 +267,13 @@ fun HomePhone(currentLocation: LatLng) {
                 }
             }
         }
+        if (locationError != "") {
+            Text(
+                text = locationError,
+                fontSize = 15.sp,
+                color = Color.Red,
+            )
+        }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Catatan",
@@ -264,8 +282,8 @@ fun HomePhone(currentLocation: LatLng) {
         )
         Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
+            value = problemDesc,
+            onValueChange = { onProblemDescChange(it) },
             label = { Text("Jelaskan Keluhan Anda") },
             modifier = Modifier
                 .width(400.dp)
@@ -274,6 +292,7 @@ fun HomePhone(currentLocation: LatLng) {
         Button(
             onClick = {
                 // Handle location button click here
+                  onOrder()
             },
             modifier = Modifier
                 .height(50.dp)
@@ -284,5 +303,8 @@ fun HomePhone(currentLocation: LatLng) {
         ) {
             Text("PESAN SEKARANG")
         }
+
+        if(error != "")
+            Text(text = error, color = Color.Red);
     }
 }

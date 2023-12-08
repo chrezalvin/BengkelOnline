@@ -1,7 +1,10 @@
 package id.ac.umn.kevinsorensen.bengkelonline.viewmodels
 
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -99,10 +102,6 @@ class HomeViewModel(
     }
 
     fun imagesChecking(){
-        _uiState.update {
-            it.copy(bitmapError = "Please fill out this field");
-        }
-/*
         if(_uiState.value.bitmaps.count{ it == null } == _uiState.value.bitmaps.size){
             _uiState.update {
                 it.copy(bitmapError = "Please fill out this field");
@@ -112,7 +111,6 @@ class HomeViewModel(
             _uiState.update {
                 it.copy(bitmapError = "");
             }
-*/
 
     }
 
@@ -141,8 +139,6 @@ class HomeViewModel(
     }
 
     fun orderComplaint(onSuccess: () -> Unit){
-        Log.d("HomeViewModel", "orderComplaint: ${_uiState.value.user}")
-        validateInputs {  }
         if(_uiState.value.user == null){
             _uiState.update {
                 it.copy(error = "User is not logged in");
@@ -159,6 +155,18 @@ class HomeViewModel(
                 List(3) {""},
                 onSuccess = {
                     onSuccess();
+
+                    // update user location
+                    userController.updateUserLocation(
+                        _uiState.value.user!!.id,
+                        currentLocation.longitude.toFloat(),
+                        currentLocation.latitude.toFloat()
+                    ) { success ->
+                        if(success)
+                            Log.d("HomeViewModel", "orderComplaint: user location updated");
+                        else
+                            Log.d("HomeViewModel", "orderComplaint: user location failed to update");
+                    }
                 },
                 onFailure = { ex ->
                     _uiState.update {
