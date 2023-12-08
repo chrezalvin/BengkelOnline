@@ -10,10 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsStore
 import id.ac.umn.kevinsorensen.bengkelonline.api.ComplaintController
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 data class HomeState(
@@ -37,7 +40,11 @@ data class HomeState(
     val error: String = "",
 );
 
-class HomeViewModel(database: Firebase = Firebase): ViewModel(){
+class HomeViewModel(
+    private val settingsStore: SettingsStore,
+    database: Firebase = Firebase
+): ViewModel()
+{
     private val _uiState = MutableStateFlow(HomeState());
     val uiState: StateFlow<HomeState> = _uiState.asStateFlow();
 
@@ -82,6 +89,13 @@ class HomeViewModel(database: Firebase = Firebase): ViewModel(){
 
     fun updateComplaintDescription(description: String){
         complaintDescription = description;
+    }
+
+    fun logout(onSuccess: () -> Unit){
+        viewModelScope.launch {
+            settingsStore.saveText("");
+            onSuccess();
+        }
     }
 
     fun imagesChecking(){

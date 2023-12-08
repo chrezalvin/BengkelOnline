@@ -5,13 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsStore
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class LoginState(
     val error: String = "",
@@ -20,7 +23,7 @@ data class LoginState(
     val pageIndex: Int = 0
 )
 
-class LoginViewModel: ViewModel() {
+class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (User) -> Unit): ViewModel() {
     private val _uiState = MutableStateFlow(LoginState());
     val uiState: StateFlow<LoginState> = _uiState.asStateFlow();
 
@@ -37,6 +40,31 @@ class LoginViewModel: ViewModel() {
 
     init {
         resetInputs();
+
+        viewModelScope.launch {
+            settingsStore.text.collect {
+                if(it != ""){
+                    userController.getUserById(it){user ->
+                        if(user != null){
+                            onUserCached(user);
+                        }
+                        else
+                            // resets this id because it's not valid id
+                            resetCachedUserId()
+                    }
+                }
+            }
+        }
+    }
+
+    fun saveUserId(userId: String){
+        viewModelScope.launch {
+            settingsStore.saveText(userId);
+        }
+    }
+
+    fun resetCachedUserId(){
+        saveUserId("");
     }
 
     fun updatePassword(password: String) {
@@ -93,12 +121,13 @@ class LoginViewModel: ViewModel() {
         }
     }
 
-    fun login(onSuccess: (User) -> Unit) {
+    fun login() {
         validateInputs {
             userController.getUser(inputEmailOrUsername, inputPassword) {
                 if (it != null) {
                     resetInputs();
-                    onSuccess(it);
+                    // cache the user id
+                    saveUserId(it.id);
                 } else {
                     _uiState.update { loginState ->
                         loginState.copy(error = "Incorrect username or password!");

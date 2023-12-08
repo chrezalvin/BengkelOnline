@@ -42,18 +42,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.LocationServices
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsApplication
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
+import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.merchant.HomeMerchant
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.UserActivity
 
 @Composable
-fun LoginActivity(activity: Activity) {
+fun LoginActivity(activity: MainActivity, loginViewModel: LoginViewModel) {
+
     Column (
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
@@ -73,7 +78,7 @@ fun LoginActivity(activity: Activity) {
         modifier = Modifier
             .fillMaxSize()
     ){
-        TabLayout(activity)
+        TabLayout(activity, loginViewModel)
     }
 }
 
@@ -125,19 +130,7 @@ fun TabLayout(
                 activity.startActivity(intent);
             },
             onLogin = {
-                loginViewModel.login() {
-                    var intent: Intent =
-                        if (it.role == "merchant") {
-                            Intent(activity, HomeMerchant::class.java)
-                        } else
-                            Intent(activity, UserActivity::class.java)
-                    intent.putExtra("userId", it.id);
-
-
-                    activity.startActivity(
-                        intent
-                    )
-                }
+                loginViewModel.login()
             },
             onForgotPassword = {
                 val intent = Intent(activity, ForgotPassActivity::class.java);

@@ -16,6 +16,7 @@ data class PhoneUiState(
     val bitmaps: List<Bitmap?> = List(3){null as Bitmap?},
     val videoUri: Uri? = null,
 )
+
 class PhoneActivityViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(PhoneUiState());
     val uiState = _uiState.asStateFlow();

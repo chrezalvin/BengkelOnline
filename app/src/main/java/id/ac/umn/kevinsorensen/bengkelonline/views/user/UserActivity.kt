@@ -38,6 +38,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -73,9 +77,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsApplication
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.HomeViewModel
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.LoginViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 
 sealed class BottomNavItem (
@@ -144,19 +151,28 @@ class UserActivity : ComponentActivity() {
 
         // get userId
         val userId = intent.getStringExtra("userId")?: "0";
-        val userName = intent.getStringExtra("username")?: "user";
-        val profileUrl = intent.getStringExtra("profileUrl");
 
         MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
 
         }
 
+        val activity = this;
+        val preferenceWrapper = (application as SettingsApplication).settingsStore;
+        val homeViewModel = ViewModelProvider(this, object:
+            ViewModelProvider.Factory{
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return HomeViewModel(preferenceWrapper) as T;
+            }
+        })[HomeViewModel::class.java]
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
+            val uiState by homeViewModel.uiState.collectAsState();
+            homeViewModel.initializeHome(userId);
 
             var currentLocation by remember {
-                mutableStateOf(com.google.android.gms.maps.model.LatLng(0.toDouble(), 0.toDouble()))
+                mutableStateOf(LatLng(0.toDouble(), 0.toDouble()))
             }
 
             val cameraPosition = rememberCameraPositionState{
@@ -193,21 +209,28 @@ class UserActivity : ComponentActivity() {
                 }
             }
 
-            var products by remember { mutableStateOf(listOf<Product>()) }
-
             val navController = rememberNavController()
-            val db = Firebase;
-            val productController = ProductController(db.firestore);
-            val userController = UserController(db);
 
-            userController.getUser("admin", "admin"){
-                Log.d("HomeUser", it.toString())
-            }
             val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    TopNavigation(userName, profileUrl, userId, navController = navController)
+                    if(uiState.user != null)
+                        TopNavigation(
+                            uiState.user!!.username,
+                            uiState.profilePhotoUri?.toString() ?: "",
+                            userId,
+                            navController = navController,
+                            onLogout = {
+                                homeViewModel.logout {
+                                    val intent = Intent(activity, MainActivity::class.java)
+                                    activity.startActivity(intent)
+                                    activity.finish()
+                                }
+                            }
+                        )
+                    else
+                        TopNavigation("User", null, userId, navController = navController)
                 },
                 bottomBar = {
                     BottomNavigation(navController = navController)
@@ -299,7 +322,13 @@ class UserActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun TopNavigation(username: String, profileUrl: String?, userId: String, navController: NavController) {
+fun TopNavigation(
+    username: String,
+    profileUrl: String?,
+    userId: String,
+    navController: NavController,
+    onLogout: () -> Unit = { }
+) {
     val contextForToast = LocalContext.current.applicationContext
     val mContext = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -384,6 +413,7 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String, navCont
                         text = { Text("Log Out") },
                         onClick = {
                             showLogoutDialog = true
+
                             // Context.startActivity(Intent(mContext, MainActivity::class.java))
                         }
                     )
@@ -400,7 +430,7 @@ fun TopNavigation(username: String, profileUrl: String?, userId: String, navCont
                             },
                             confirmButton = {
                                 TextButton(
-                                    onClick = { mContext.startActivity(Intent(mContext, MainActivity::class.java)) }
+                                    onClick = { onLogout() }
                                 ) {
                                     Text("Yes")
                                 }
