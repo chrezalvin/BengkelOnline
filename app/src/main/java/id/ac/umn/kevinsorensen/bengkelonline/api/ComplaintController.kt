@@ -85,26 +85,11 @@ class ComplaintController(db: Firebase) {
             }
     }
 
-    fun getNearbyComplaint(
-        long: Float,
-        lat: Float,
-        onSuccess: (List<Complaint>) -> Unit = {},
-        onFailure: (String) -> Unit = {}
+    fun getAllComplaints(
+        onSuccess: (List<Complaint>) -> Unit,
+        onFailure: (String) -> Unit
     ) {
-        // radius of 2km from the center
-        val radius = 2.0;
-        val minLong = long - radius;
-        val maxLong = long + radius;
-
-        val minLat = lat - radius;
-        val maxLat = lat + radius;
-
         firestore.collection(COLLECTION_NAME)
-            .where(
-                Filter.and(
-                    Filter.greaterThan("long", minLong),
-                )
-            )
             .get()
             .addOnSuccessListener {
                 if(it.isEmpty){
@@ -119,6 +104,38 @@ class ComplaintController(db: Firebase) {
             .addOnFailureListener {
                 ex -> onFailure(ex.message.toString());
             }
+    }
+
+    fun getNearbyComplaint(
+        long: Float,
+        lat: Float,
+        onSuccess: (List<Complaint>) -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+
+        Log.d(TAG, "getNearbyComplaint: $long, $lat")
+        // radius of 2km from the center
+        val radius = 4;
+        val minLong = long - radius;
+        val maxLong = long + radius;
+
+        val minLat = lat - radius;
+        val maxLat = lat + radius;
+
+        getAllComplaints(
+            onSuccess = {
+                val complaints = it.filter { complaint ->
+                    // check
+                    Log.d(TAG, "getNearbyComplaint: (${complaint.long}, ${complaint.lat})")
+                    Log.d(TAG, "expectedLocation: ($minLong - $maxLong), ($minLat - $maxLat)")
+                    complaint.long in minLong..maxLong && complaint.lat in minLat..maxLat
+                }
+                onSuccess(complaints);
+            },
+            onFailure = { ex ->
+                onFailure(ex);
+            }
+        )
     }
 
     companion object {

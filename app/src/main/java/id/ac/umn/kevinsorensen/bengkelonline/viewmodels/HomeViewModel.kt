@@ -1,38 +1,26 @@
 package id.ac.umn.kevinsorensen.bengkelonline.viewmodels
 
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import id.ac.umn.kevinsorensen.bengkelonline.SettingsStore
 import id.ac.umn.kevinsorensen.bengkelonline.api.ComplaintController
-import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.ResourceCollector
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 data class HomeState(
     val user: User? = null,
@@ -40,6 +28,7 @@ data class HomeState(
     val bitmaps: List<Bitmap?> = List(3) {null as Bitmap?},
     val bitmapError: String = "",
     val locationError: String = "",
+    val complaintError: String = "",
     val error: String = "",
 );
 
@@ -126,13 +115,26 @@ class HomeViewModel(
             }
     }
 
+    fun complaintChecking(){
+        if(_uiState.value.user?.complaintId != null)
+            _uiState.update {
+                it.copy(complaintError = "You already have a complaint");
+            }
+        else
+            _uiState.update {
+                it.copy(complaintError = "");
+            }
+    }
+
     fun validateInputs(onSuccess: () -> Unit){
         imagesChecking();
         locationChecking();
+        complaintChecking();
 
         if(
             _uiState.value.bitmapError.isEmpty() &&
-            _uiState.value.locationError.isEmpty()
+            _uiState.value.locationError.isEmpty() &&
+            _uiState.value.complaintError.isEmpty()
             ){
             onSuccess();
         }

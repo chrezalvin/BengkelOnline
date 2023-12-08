@@ -9,12 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.ktx.Firebase
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsStore
 import id.ac.umn.kevinsorensen.bengkelonline.api.ComplaintController
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class MerchantUiState(
     val user: User? = null,
@@ -23,7 +25,7 @@ data class MerchantUiState(
     val titleError: String = "",
     val descriptionError: String = "",
 )
-class MerchantViewModel(): ViewModel(){
+class MerchantViewModel(private val settingsStore: SettingsStore): ViewModel(){
     private val database = Firebase;
     private val complaintController = ComplaintController(database);
     private val userController = UserController(database);
@@ -43,6 +45,13 @@ class MerchantViewModel(): ViewModel(){
             if(user != null) {
                 _uiState.value = _uiState.value.copy(user = user);
             }
+        }
+    }
+
+    fun logout(onSuccess: () -> Unit){
+        viewModelScope.launch {
+            settingsStore.saveText("");
+            onSuccess();
         }
     }
 

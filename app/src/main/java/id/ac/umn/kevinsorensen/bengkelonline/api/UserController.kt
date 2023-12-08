@@ -7,6 +7,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Address
+import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import java.security.MessageDigest
 import java.util.UUID
@@ -251,6 +252,7 @@ class UserController(private val database: Firebase){
         val photo = document.get("photo") as String?;
         var long = document.get("long") as Number?;
         var lat = document.get("lat") as Number?;
+        val complaintId = document.get("complaintId") as String?;
 
         long = long?.toFloat() ?: 0.0f;
         lat = lat?.toFloat() ?: 0.0f;
@@ -266,12 +268,32 @@ class UserController(private val database: Firebase){
             phone,
             photo,
             long as Float,
-            lat as Float
+            lat as Float,
+            complaintId,
         );
     }
 
-    fun updateUser(){
+    fun updateUserComplaint(userId: String, complaint: Complaint){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    return@addOnSuccessListener;
+                }
 
+                val document = it.documents[0];
+                document.reference.update("complaintId", complaint.id)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "updateUserComplaint: success");
+                    }
+                    .addOnFailureListener{
+                        Log.d(TAG, "updateUserComplaint: failed");
+                    }
+            }
+            .addOnFailureListener{
+                Log.d(TAG, "updateUserComplaint: failed");
+            }
     }
 
 //    fun getProfilePhoto(profile: String, onSuccess: (Uri) -> Unit){

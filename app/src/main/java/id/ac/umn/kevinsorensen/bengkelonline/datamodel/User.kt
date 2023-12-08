@@ -10,4 +10,5 @@ data class User(
     val photo: String? = null,
     val long: Float = 0.0f,
     val lat: Float = 0.0f,
+    val complaintId: String? = null,
 )

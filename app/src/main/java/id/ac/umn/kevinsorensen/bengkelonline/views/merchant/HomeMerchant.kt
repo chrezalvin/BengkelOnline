@@ -59,6 +59,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -82,6 +84,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import id.ac.umn.kevinsorensen.bengkelonline.R
+import id.ac.umn.kevinsorensen.bengkelonline.SettingsApplication
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
@@ -178,8 +181,15 @@ class HomeMerchant : ComponentActivity() {
 
         // get userId
         val userId = intent.getStringExtra("userId")?: "0";
-        val userName = intent.getStringExtra("username")?: "user";
-        val profileUrl = intent.getStringExtra("profileUrl");
+
+        val activity = this;
+        val preferenceWrapper = (application as SettingsApplication).settingsStore;
+        val merchantViewModel = ViewModelProvider(this, object:
+            ViewModelProvider.Factory{
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MerchantViewModel(preferenceWrapper) as T;
+            }
+        })[MerchantViewModel::class.java]
 
         MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
 
@@ -188,7 +198,6 @@ class HomeMerchant : ComponentActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
-            val merchantViewModel: MerchantViewModel = viewModel();
             val uiState by merchantViewModel.uiState.collectAsState();
 
             val cameraPosition = rememberCameraPositionState{
@@ -225,14 +234,22 @@ class HomeMerchant : ComponentActivity() {
                 }
             }
 
-            var products by remember { mutableStateOf(listOf<Product>()) }
-
             val navController = rememberNavController()
             val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    TopNavigation2(userName, profileUrl, userId, navController = navController)
+                    TopNavigation2(
+                        username = uiState.user?.username?: "",
+                        "",
+                        userId,
+                        navController = navController,
+                        onLogout = {
+                            merchantViewModel.logout {
+                                startActivity(Intent(activity, MainActivity::class.java))
+                            }
+                        }
+                    )
                 },
                 bottomBar = {
                     BottomNavigation(navController = navController)
@@ -418,8 +435,13 @@ private fun formatDate(date: Date): String {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun TopNavigation2(username: String, profileUrl: String?, userId: String, navController: NavController) {
-    val contextForToast = LocalContext.current.applicationContext
+fun TopNavigation2(
+    username: String,
+    profileUrl: String?,
+    userId: String,
+    navController: NavController,
+    onLogout: () -> Unit = {}
+) {
     val mContext = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
@@ -519,7 +541,9 @@ fun TopNavigation2(username: String, profileUrl: String?, userId: String, navCon
                         },
                         confirmButton = {
                             TextButton(
-                                onClick = { mContext.startActivity(Intent(mContext, MainActivity::class.java)) }
+                                onClick = {
+                                    onLogout()
+                                }
                             ) {
                                 Text("Yes")
                             }
