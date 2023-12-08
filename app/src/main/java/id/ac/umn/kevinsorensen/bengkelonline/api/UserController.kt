@@ -15,6 +15,7 @@ import java.util.UUID
 class UserController(private val database: Firebase){
     private val firestore = database.firestore;
     private val storage = database.storage;
+    private val complaintController = ComplaintController(database);
 
     private fun hash(str: String): String {
         val bytes = str.toByteArray()
@@ -273,23 +274,70 @@ class UserController(private val database: Firebase){
         );
     }
 
-    fun updateUserComplaint(userId: String, complaint: Complaint){
+    fun removeUserComplaint(userId: String, callback: (Boolean) -> Unit){
         firestore.collection(COLLECTION_NAME)
             .whereEqualTo("id", userId)
             .get()
             .addOnSuccessListener {
                 if(it.isEmpty){
+                    callback(false);
                     return@addOnSuccessListener;
                 }
 
                 val document = it.documents[0];
-                document.reference.update("complaintId", complaint.id)
+                document.reference.update("complaintId", null)
                     .addOnSuccessListener {
-                        Log.d(TAG, "updateUserComplaint: success");
+                        callback(true);
                     }
                     .addOnFailureListener{
-                        Log.d(TAG, "updateUserComplaint: failed");
+                        callback(false);
                     }
+            }
+            .addOnFailureListener{
+                callback(false);
+            }
+    }
+
+    fun updateUserComplaint(
+        userId: String,
+        long: Float,
+        lat: Float,
+        description: String = "",
+        photoUris: List<String>,
+        callback: (complaintId: String?) -> Unit
+    ){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    callback(null);
+                    return@addOnSuccessListener;
+                }
+
+                val document = it.documents[0];
+                complaintController.submitComplaint(
+                    userId,
+                    long,
+                    lat,
+                    description,
+                    photoUris,
+                    onSuccess = { complaintId ->
+                        if(complaintId != null){
+                            document.reference.update("complaintId", complaintId)
+                                .addOnSuccessListener {
+                                    callback(complaintId);
+                                }
+                                .addOnFailureListener{
+                                    callback(null);
+                                }
+                        }
+                        else{
+                            callback(null);
+                        }
+                    }
+                )
+
             }
             .addOnFailureListener{
                 Log.d(TAG, "updateUserComplaint: failed");

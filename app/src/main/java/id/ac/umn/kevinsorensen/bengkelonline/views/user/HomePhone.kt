@@ -72,6 +72,7 @@ fun HomePhone(
     error: String = "",
     locationError: String = "",
     bitmapError: String = "",
+    complaintError: String = "",
 ) {
 //    var bitmaps by remember { mutableStateOf(List(3) { null as Bitmap? }) }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
@@ -306,5 +307,7 @@ fun HomePhone(
 
         if(error != "")
             Text(text = error, color = Color.Red);
+        if(complaintError != "")
+            Text(text = complaintError, color = Color.Red);
     }
 }

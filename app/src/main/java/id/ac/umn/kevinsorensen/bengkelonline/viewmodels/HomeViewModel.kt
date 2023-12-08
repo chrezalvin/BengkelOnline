@@ -90,6 +90,16 @@ class HomeViewModel(
         }
     }
 
+    fun resetInputs(){
+        _uiState.update {
+            it.copy(
+                bitmaps = List(3) {null as Bitmap?},
+            );
+        }
+
+        complaintDescription = "";
+    }
+
     fun imagesChecking(){
         if(_uiState.value.bitmaps.count{ it == null } == _uiState.value.bitmaps.size){
             _uiState.update {
@@ -149,33 +159,48 @@ class HomeViewModel(
         }
 
         validateInputs {
-            complaintController.submitComplaint(
+            userController.updateUserComplaint(
                 _uiState.value.user!!.id,
                 currentLocation.longitude.toFloat(),
                 currentLocation.latitude.toFloat(),
                 complaintDescription,
                 List(3) {""},
-                onSuccess = {
-                    onSuccess();
+            ){ complaintId ->
 
-                    // update user location
-                    userController.updateUserLocation(
-                        _uiState.value.user!!.id,
-                        currentLocation.longitude.toFloat(),
-                        currentLocation.latitude.toFloat()
-                    ) { success ->
-                        if(success)
-                            Log.d("HomeViewModel", "orderComplaint: user location updated");
-                        else
-                            Log.d("HomeViewModel", "orderComplaint: user location failed to update");
-                    }
-                },
-                onFailure = { ex ->
+                if(complaintId == null){
                     _uiState.update {
-                        it.copy(error = "Failed to submit complaint: $ex");
+                        it.copy(error = "Failed to submit complaint");
                     }
+                    return@updateUserComplaint;
                 }
-            )
+                else{
+                    _uiState.update {
+                        it.copy(user = it.user?.copy(
+                            complaintId = complaintId
+                        ));
+                    }
+                    onSuccess();
+                }
+
+                // update user location
+                userController.updateUserLocation(
+                    _uiState.value.user!!.id,
+                    currentLocation.longitude.toFloat(),
+                    currentLocation.latitude.toFloat()
+                ) { success ->
+                    if(success) {
+                        _uiState.update {
+                            it.copy(user = it.user?.copy(
+                                long = currentLocation.longitude.toFloat(),
+                                lat = currentLocation.latitude.toFloat()
+                            ));
+                        }
+                        Log.d("HomeViewModel", "orderComplaint: user location updated");
+                    }
+                    else
+                        Log.d("HomeViewModel", "orderComplaint: user location failed to update");
+                }
+            }
         }
     }
 

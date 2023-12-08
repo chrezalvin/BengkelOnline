@@ -45,6 +45,22 @@ class HistoryController(db: Firebase){
             }
     }
 
+/*    fun addHistory(userId: String, historyId: String) {
+        val history = History(
+            userId,
+            historyId,
+        );
+
+        firestore.collection(COLLECTION_NAME)
+            .add(history)
+            .addOnSuccessListener {
+                onSuccess(history.id);
+            }
+            .addOnFailureListener { ex ->
+                onSuccess(null);
+            }
+    }*/
+
     companion object {
         val COLLECTION_NAME: String = "histories"
         val TAG: String = "History Controller"

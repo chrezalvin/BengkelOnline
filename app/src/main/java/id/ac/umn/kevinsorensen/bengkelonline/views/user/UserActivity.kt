@@ -275,7 +275,7 @@ class UserActivity : ComponentActivity() {
                                     },
                                     onOrder = {
                                         homeViewModel.orderComplaint {
-
+                                            homeViewModel.resetInputs()
                                         }
                                     },
                                     onBitmapUpdate = { index, bitmap ->
@@ -285,6 +285,7 @@ class UserActivity : ComponentActivity() {
                                     error = uiState.error,
                                     bitmapError = uiState.bitmapError,
                                     locationError = uiState.locationError,
+                                    complaintError = uiState.complaintError,
                                 )
                             }
                         }
