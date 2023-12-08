@@ -45,6 +45,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -82,7 +84,10 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
+import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.HomeViewModel
+import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.MerchantViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.BottomNavItem
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.BottomNavigation
@@ -112,11 +117,11 @@ class OrderDataSource {
             Order(dateFormat.parse("10-03-2023")!!, -6.914744, 107.609810, "Shop Z", "Cancelled"),
             Order(dateFormat.parse("15-03-2023")!!, -7.795580, 110.369490, "Shop W", "Cancelled"),
             Order(dateFormat.parse("20-03-2023")!!, -6.932444, 107.604738, "Shop V", "In Progress"),
-            Order(dateFormat.parse("25-03-2023")!!, -6.917464, 107.619123, "Shop U", "In Progress"),
+            Order(dateFormat.parse("25-03-2023")!!, -3.917464, 107.619123, "Shop U", "In Progress"),
             Order(dateFormat.parse("01-04-2023")!!, -7.257472, 112.752090, "Shop T", "Completed"),
-            Order(dateFormat.parse("05-04-2023")!!, -7.966620, 112.632629, "Shop S", "Completed"),
+            Order(dateFormat.parse("05-04-2023")!!, -10.966620, 112.632629, "Shop S", "Completed"),
             Order(dateFormat.parse("10-04-2023")!!, -6.175392, 106.827153, "Shop R", "Cancelled"),
-            Order(dateFormat.parse("15-04-2023")!!, -6.402484, 106.794243, "Shop Q", "Cancelled")
+            Order(dateFormat.parse("15-04-2023")!!, -8.402484, 106.794243, "Shop Q", "Cancelled")
         )
     }
 }
@@ -183,14 +188,12 @@ class HomeMerchant : ComponentActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
-
-            var currentLocation by remember {
-                mutableStateOf(com.google.android.gms.maps.model.LatLng(0.toDouble(), 0.toDouble()))
-            }
+            val merchantViewModel: MerchantViewModel = viewModel();
+            val uiState by merchantViewModel.uiState.collectAsState();
 
             val cameraPosition = rememberCameraPositionState{
                 position = CameraPosition.fromLatLngZoom(
-                    currentLocation, 10f
+                    merchantViewModel.userLocation, 10f
                 )
             }
 
@@ -205,7 +208,7 @@ class HomeMerchant : ComponentActivity() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
                     p0.locations.lastOrNull()?.let { location ->
-                        currentLocation = LatLng(location.latitude, location.longitude)
+                        merchantViewModel.updateUserLocation(location.latitude, location.longitude)
 
                         val zoomLevelToUse = if (isZoomLevelUserSet) {
                             cameraPositionState.position.zoom
@@ -216,7 +219,7 @@ class HomeMerchant : ComponentActivity() {
                         }
 
                         cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                            currentLocation, zoomLevelToUse
+                            merchantViewModel.userLocation, zoomLevelToUse
                         )
                     }
                 }
@@ -225,13 +228,6 @@ class HomeMerchant : ComponentActivity() {
             var products by remember { mutableStateOf(listOf<Product>()) }
 
             val navController = rememberNavController()
-            val db = Firebase;
-            val productController = ProductController(db.firestore);
-            val userController = UserController(db);
-
-            userController.getUser("admin", "admin"){
-                Log.d("HomeUser", it.toString())
-            }
             val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -254,7 +250,11 @@ class HomeMerchant : ComponentActivity() {
                                     .padding(bottom = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                LocationScreen(currentLocation, cameraPositionState)
+                                LocationScreen(
+                                    merchantViewModel.userLocation,
+                                    cameraPositionState,
+                                    uiState.complaints
+                                )
                             }
                         }
                         composable(BottomNavItem.Phone.route) {
@@ -265,9 +265,14 @@ class HomeMerchant : ComponentActivity() {
                                     .padding(top = 80.dp),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                val orders = OrderDataSource().loadOrders()
-                                displayOrders(orders, { order -> true }) { index ->
-                                }
+                                displayOrders(
+                                    uiState.complaints,
+                                    onUpdate = {
+                                        merchantViewModel.getNearbyComplaints()
+                                    },
+                                    navigateToDetail = { index ->
+                                    }
+                                )
                             }
                         }
                     }
@@ -277,7 +282,11 @@ class HomeMerchant : ComponentActivity() {
     }
 
     @Composable
-    fun LocationScreen(currentLocation: LatLng, camerapositionState: CameraPositionState) {
+    fun LocationScreen(
+        currentLocation: LatLng,
+        camerapositionState: CameraPositionState,
+        complaints: List<Complaint> = listOf()
+    ) {
         val context = LocalContext.current
 
         val launchMultiplePermissions = rememberLauncherForActivityResult(
@@ -306,6 +315,15 @@ class HomeMerchant : ComponentActivity() {
                     title = "You",
                     snippet = "You're here!!!"
                 )
+
+                for(complaint in complaints){
+                    Marker(
+                        state = MarkerState(
+                            position = LatLng(complaint.lat.toDouble(), complaint.long.toDouble()),
+                        ),
+                        title = complaint.id,
+                    )
+                }
             }
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -334,43 +352,61 @@ fun MerchantPhone() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun displayOrders(orders: List<Order>, filter: (Order) -> Boolean, navigateToDetail: (Int) -> Unit) {
+fun complaintCard(
+    complaint: Complaint,
+    index: Int,
+    onClick: () -> Unit
+){
+    Card(
+        onClick = { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Text(
+            text = "Order Date: ${formatDate(complaint.date.toDate())}",
+            modifier = Modifier.padding(2.dp),
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp),
+            color = Color.Black
+        )
+        Text(
+            text = "Longitude: ${complaint.long}",
+            modifier = Modifier.padding(2.dp),
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            text = "Latitude: ${complaint.lat}",
+            modifier = Modifier.padding(2.dp),
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            text = "Shop Name: ${complaint.userId}",
+            modifier = Modifier.padding(2.dp),
+            style = MaterialTheme.typography.headlineSmall
+        )
+    }
+}
+
+@Composable
+fun displayOrders(
+    complaints: List<Complaint>,
+    navigateToDetail: (Int) -> Unit,
+    onUpdate: () -> Unit
+) {
     LazyColumn {
-        itemsIndexed(orders.filter(filter)) { index, order ->
-            Card(
-                onClick = { navigateToDetail(index) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Text(
-                    text = "Order Date: ${formatDate(order.orderDate)}",
-                    modifier = Modifier.padding(2.dp),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Divider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp),
-                    color = Color.Black
-                )
-                Text(
-                    text = "Longitude: ${order.longitude}",
-                    modifier = Modifier.padding(2.dp),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "Latitude: ${order.latitude}",
-                    modifier = Modifier.padding(2.dp),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "Shop Name: ${order.shopName}",
-                    modifier = Modifier.padding(2.dp),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
+        itemsIndexed(complaints) { index, complaint ->
+            complaintCard(complaint, index, onClick = { navigateToDetail(index) })
             Spacer(modifier = Modifier.height(10.dp))
+        }
+        this.item {
+            Button(onClick = { onUpdate() }) {
+                Text(text = "Update")
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package id.ac.umn.kevinsorensen.bengkelonline.api
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
@@ -15,8 +16,8 @@ class ComplaintController(db: Firebase) {
         Log.d(TAG, "Got complaint data: ${data.toString()}");
         val id = data.get("id") as String? ?: "";
         val userId = data.get("userId") as String? ?: "";
-        val long = data.get("long");
-        val lat = data.get("lat");
+        val long = (data.get("long") as Number).toFloat();
+        val lat = (data.get("lat") as Number).toFloat();
         val description = data.get("description") as String? ?: "";
         val photoUris = data.get("photoUris") as List<String>? ?: listOf();
         val videoUri = data.get("videoUri") as String? ?: "";
@@ -24,8 +25,8 @@ class ComplaintController(db: Firebase) {
         return Complaint(
             id,
             userId,
-            long as Float,
-            lat as Float,
+            long,
+            lat,
             description,
             photoUris.map { uri -> Uri.parse(uri) },
             Uri.parse(videoUri),
@@ -99,10 +100,11 @@ class ComplaintController(db: Firebase) {
         val maxLat = lat + radius;
 
         firestore.collection(COLLECTION_NAME)
-            .whereGreaterThan("long", minLong)
-            .whereLessThan("long", maxLong)
-            .whereGreaterThan("lat", minLat)
-            .whereLessThan("lat", maxLat)
+            .where(
+                Filter.and(
+                    Filter.greaterThan("long", minLong),
+                )
+            )
             .get()
             .addOnSuccessListener {
                 if(it.isEmpty){
