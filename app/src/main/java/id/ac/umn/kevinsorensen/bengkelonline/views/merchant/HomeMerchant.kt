@@ -1,12 +1,10 @@
 package id.ac.umn.kevinsorensen.bengkelonline.views.merchant
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,9 +30,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -74,10 +67,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
@@ -85,49 +77,16 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import id.ac.umn.kevinsorensen.bengkelonline.R
 import id.ac.umn.kevinsorensen.bengkelonline.SettingsApplication
-import id.ac.umn.kevinsorensen.bengkelonline.api.ProductController
-import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
 import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Product
-import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.HomeViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.viewmodels.MerchantViewModel
 import id.ac.umn.kevinsorensen.bengkelonline.views.MainActivity
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.BottomNavItem
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.BottomNavigation
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.HistoryActivity
-import id.ac.umn.kevinsorensen.bengkelonline.views.user.HomePhone
 import id.ac.umn.kevinsorensen.bengkelonline.views.user.ProfileActivity
-import id.ac.umn.kevinsorensen.bengkelonline.views.user.TopNavigation
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-data class Order(
-    val orderDate: Date,
-    val latitude: Double,
-    val longitude: Double,
-    val shopName: String,
-    val status: String
-)
-
-class OrderDataSource {
-    fun loadOrders(): List<Order> {
-        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
-        return listOf(
-            Order(dateFormat.parse("01-03-2023")!!, -6.175110, 106.865036, "Shop X", "Completed"),
-            Order(dateFormat.parse("05-03-2023")!!, -6.208763, 106.845599, "Shop Y", "In Progress"),
-            Order(dateFormat.parse("10-03-2023")!!, -6.914744, 107.609810, "Shop Z", "Cancelled"),
-            Order(dateFormat.parse("15-03-2023")!!, -7.795580, 110.369490, "Shop W", "Cancelled"),
-            Order(dateFormat.parse("20-03-2023")!!, -6.932444, 107.604738, "Shop V", "In Progress"),
-            Order(dateFormat.parse("25-03-2023")!!, -3.917464, 107.619123, "Shop U", "In Progress"),
-            Order(dateFormat.parse("01-04-2023")!!, -7.257472, 112.752090, "Shop T", "Completed"),
-            Order(dateFormat.parse("05-04-2023")!!, -10.966620, 112.632629, "Shop S", "Completed"),
-            Order(dateFormat.parse("10-04-2023")!!, -6.175392, 106.827153, "Shop R", "Cancelled"),
-            Order(dateFormat.parse("15-04-2023")!!, -8.402484, 106.794243, "Shop Q", "Cancelled")
-        )
-    }
-}
 
 class HomeMerchant : ComponentActivity() {
     private var permissions = arrayOf(
@@ -190,6 +149,8 @@ class HomeMerchant : ComponentActivity() {
                 return MerchantViewModel(preferenceWrapper) as T;
             }
         })[MerchantViewModel::class.java]
+
+        merchantViewModel.initializeHome(userId);
 
         MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST){
 
@@ -338,6 +299,7 @@ class HomeMerchant : ComponentActivity() {
                         state = MarkerState(
                             position = LatLng(complaint.lat.toDouble(), complaint.long.toDouble()),
                         ),
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
                         title = complaint.id,
                     )
                 }

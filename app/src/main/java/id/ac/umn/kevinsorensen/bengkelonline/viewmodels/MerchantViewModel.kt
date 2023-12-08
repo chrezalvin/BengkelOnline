@@ -57,8 +57,8 @@ class MerchantViewModel(private val settingsStore: SettingsStore): ViewModel(){
 
     fun getNearbyComplaints(){
         complaintController.getNearbyComplaint(
-            userLocation.latitude.toFloat(),
-            userLocation.longitude.toFloat(),
+            long = userLocation.longitude.toFloat(),
+            lat = userLocation.latitude.toFloat(),
             onSuccess = { complaints ->
                 Log.d("MerchantViewModel", "getNearbyComplaints: $complaints");
                 _uiState.value = _uiState.value.copy(complaints = complaints);
