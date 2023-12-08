@@ -52,10 +52,15 @@ class MainActivity : ComponentActivity() {
                             Intent(activity, UserActivity::class.java)
                     intent.putExtra("userId", it.id);
 
-                    activity.startActivity(
-                        intent
-                    )
-                    activity.finish()
+
+                    if (permissions.all { permission ->
+                            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+                        }) {
+                        activity.startActivity(intent)
+                    } else {
+                        // Izin belum diberikan, minta izin
+                        requestPermissions()
+                    }
                 } as T;
             }
         })[LoginViewModel::class.java]
@@ -67,20 +72,10 @@ class MainActivity : ComponentActivity() {
                     LoginActivity(this, loginViewModel)
                 }
             } else {
-                // Finish the activity if any permission is not granted
                 finish()
             }
         }
         requestPermissions()
-    }
-
-    private fun arePermissionsGranted(): Boolean {
-        for (permission in permissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false
-            }
-        }
-        return true
     }
 
     companion object {
