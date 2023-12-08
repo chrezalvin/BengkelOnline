@@ -1,4 +1,4 @@
-package id.ac.umn.kevinsorensen.bengkelonline.views.user
+    package id.ac.umn.kevinsorensen.bengkelonline.views.user
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -333,13 +333,13 @@ class UserActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Your Location: ${currentLocation.latitude}/${currentLocation.longitude}")
                 if (permissions.all {
                         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
                     })
                 {
                     // Get Location
                     (context as? UserActivity)?.startLocationUpdates()
+                    Text(text = "Your Location: ${currentLocation.latitude}/${currentLocation.longitude}")
                 }
                 else {
                     launchMultiplePermissions.launch(permissions)

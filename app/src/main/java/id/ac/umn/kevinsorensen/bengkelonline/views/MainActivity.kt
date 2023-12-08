@@ -2,11 +2,15 @@ package id.ac.umn.kevinsorensen.bengkelonline.views
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -21,6 +25,16 @@ import id.ac.umn.kevinsorensen.bengkelonline.views.user.UserActivity
 
 class MainActivity : ComponentActivity() {
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settingsStore")
+    private var permissions = arrayOf(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+        android.Manifest.permission.INTERNET,
+        android.Manifest.permission.CAMERA
+    )
+
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +60,36 @@ class MainActivity : ComponentActivity() {
             }
         })[LoginViewModel::class.java]
 
-        setContent {
-            LoginActivity(this, loginViewModel)
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions.all { it.value }) {
+                // All permissions are granted
+                setContent {
+                    LoginActivity(this, loginViewModel)
+                }
+            } else {
+                // Finish the activity if any permission is not granted
+                finish()
+            }
         }
+        requestPermissions()
+    }
+
+    private fun arePermissionsGranted(): Boolean {
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
     }
 
     companion object {
         private const val TAG = "MainActivity";
     }
+
+    private fun requestPermissions() {
+        requestPermissionLauncher.launch(permissions)
+    }
+
 }
 
