@@ -364,7 +364,7 @@ fun complaintCard(
             style = MaterialTheme.typography.headlineSmall
         )
         Text(
-            text = "Shop Name: ${complaint.userId}",
+            text = "User: ${complaint.userId}",
             modifier = Modifier.padding(2.dp),
             style = MaterialTheme.typography.headlineSmall
         )
@@ -380,7 +380,7 @@ fun displayOrders(
     LazyColumn {
         itemsIndexed(complaints) { index, complaint ->
             complaintCard(complaint, index, onClick = { navigateToDetail(index) })
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
         }
         this.item {
             Button(onClick = { onUpdate() }) {
