@@ -12,4 +12,6 @@ data class Complaint (
     val photoUris: List<Uri>,
     val videoUri: Uri,
     val date: Timestamp = Timestamp.now(),
+/*    val status: String? = null,
+    val merchantId: String? = null,*/
 )

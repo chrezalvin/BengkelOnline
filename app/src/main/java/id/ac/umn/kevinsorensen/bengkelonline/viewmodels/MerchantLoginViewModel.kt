@@ -15,6 +15,7 @@ data class MerchantLoginUiState(
     val usernameError: String = "",
     val passwordError: String = "",
 )
+
 class MerchantLoginViewModel(database: Firebase): ViewModel() {
     private val userController = UserController(database)
 

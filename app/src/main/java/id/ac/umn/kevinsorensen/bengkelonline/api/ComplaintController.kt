@@ -2,6 +2,7 @@ package id.ac.umn.kevinsorensen.bengkelonline.api
 
 import android.net.Uri
 import android.util.Log
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ktx.firestore
@@ -21,6 +22,11 @@ class ComplaintController(db: Firebase) {
         val description = data.get("description") as String? ?: "";
         val photoUris = data.get("photoUris") as List<String>? ?: listOf();
         val videoUri = data.get("videoUri") as String? ?: "";
+        val date = data.get("date") as Timestamp? ?: Timestamp.now();
+/*        val status = data.get("status") as String?;
+        val merchantId = data.get("merchantId") as String?;
+*/
+
 
         return Complaint(
             id,
@@ -30,6 +36,9 @@ class ComplaintController(db: Firebase) {
             description,
             photoUris.map { uri -> Uri.parse(uri) },
             Uri.parse(videoUri),
+            date,
+/*            status,
+            merchantId,*/
         );
     }
 
@@ -135,6 +144,66 @@ class ComplaintController(db: Firebase) {
                 onFailure(ex);
             }
         )
+    }
+
+    fun getComplaintById(
+        complaintId: String,
+        onSuccess: (Complaint?) -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", complaintId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("Complaint not found");
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaint = dataValidation(it.documents[0]);
+                    onSuccess(complaint);
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+    }
+
+    fun setComplaintStatus(
+        complaintId: String,
+        merchantId: String,
+        status: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit = {}
+    ){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", complaintId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaint = it.documents[0];
+                    complaint.reference.update("status", status)
+                        .addOnSuccessListener {
+                            complaint.reference.update("merchantId", merchantId)
+                                .addOnSuccessListener {
+                                    onSuccess();
+                                }
+                                .addOnFailureListener {
+                                    ex -> onFailure(ex.message.toString());
+                                }
+                        }
+                        .addOnFailureListener {
+                            ex -> onFailure(ex.message.toString());
+                        }
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+
     }
 
     companion object {
