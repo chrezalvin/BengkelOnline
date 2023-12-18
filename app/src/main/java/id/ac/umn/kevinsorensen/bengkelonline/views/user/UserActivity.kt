@@ -1,4 +1,4 @@
-    package id.ac.umn.kevinsorensen.bengkelonline.views.user
+package id.ac.umn.kevinsorensen.bengkelonline.views.user
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,11 +12,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -487,12 +490,22 @@ fun BottomNavigation(navController: NavController) {
         BottomNavItem.Maps,
         BottomNavItem.Phone
     )
-    NavigationBar {
-        items.forEach { item ->
-            AddItem(
-                screen = item,
-                navController = navController
-            )
+    Row(
+        modifier = Modifier
+            .background(Color.Red)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NavigationBar(
+            modifier = Modifier.background(Color.Red)
+        ) {
+            items.forEach { item ->
+                AddItem(
+                    screen = item,
+                    navController = navController
+                )
+            }
         }
     }
 }
@@ -509,10 +522,9 @@ fun RowScope.AddItem(
                    contentDescription = null
                )
         },
-        selected = true ,
+        selected = true,
         onClick = {
             navController.navigate(screen.route)
         },
-        colors = NavigationBarItemDefaults.colors()
     )
 }
