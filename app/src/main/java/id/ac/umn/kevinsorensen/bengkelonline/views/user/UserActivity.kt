@@ -7,12 +7,14 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.util.Size
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -486,45 +489,42 @@ fun TopNavigation(
 
 @Composable
 fun BottomNavigation(navController: NavController) {
-    val items = listOf (
+    val items = listOf(
         BottomNavItem.Maps,
         BottomNavItem.Phone
     )
     Row(
         modifier = Modifier
-            .background(Color.Red)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(Color.Red),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        NavigationBar(
-            modifier = Modifier.background(Color.Red)
-        ) {
-            items.forEach { item ->
-                AddItem(
-                    screen = item,
-                    navController = navController
-                )
-            }
+        items.forEach { item ->
+            AddItem(
+                screen = item,
+                navController = navController
+            )
         }
     }
 }
 
 @Composable
-fun RowScope.AddItem(
+fun AddItem(
     screen: BottomNavItem,
     navController: NavController
 ) {
-    NavigationBarItem(
-        icon = {
-               Icon (
-                   painterResource(id = screen.icon),
-                   contentDescription = null
-               )
-        },
-        selected = true,
-        onClick = {
-            navController.navigate(screen.route)
-        },
-    )
+    Box(
+        modifier = Modifier
+            .clickable { navController.navigate(screen.route) }
+            .background(Color.Red)
+            .padding(15.dp)
+    ) {
+        Icon(
+            painterResource(id = screen.icon),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(30.dp)
+        )
+    }
 }
