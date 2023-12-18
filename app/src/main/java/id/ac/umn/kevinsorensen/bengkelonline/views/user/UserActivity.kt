@@ -489,6 +489,7 @@ fun TopNavigation(
 
 @Composable
 fun BottomNavigation(navController: NavController) {
+    var selectedRoute by remember { mutableStateOf(BottomNavItem.Maps.route) }
     val items = listOf(
         BottomNavItem.Maps,
         BottomNavItem.Phone
@@ -503,8 +504,11 @@ fun BottomNavigation(navController: NavController) {
         items.forEach { item ->
             AddItem(
                 screen = item,
-                navController = navController
-            )
+                navController = navController,
+                isSelected = item.route == selectedRoute
+            ) {
+                selectedRoute = item.route
+            }
         }
     }
 }
@@ -512,11 +516,16 @@ fun BottomNavigation(navController: NavController) {
 @Composable
 fun AddItem(
     screen: BottomNavItem,
-    navController: NavController
+    navController: NavController,
+    isSelected: Boolean,
+    onSelected: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .clickable { navController.navigate(screen.route) }
+            .clickable {
+                navController.navigate(screen.route)
+                onSelected()
+            }
             .background(Color.Red)
             .padding(25.dp)
     ) {
