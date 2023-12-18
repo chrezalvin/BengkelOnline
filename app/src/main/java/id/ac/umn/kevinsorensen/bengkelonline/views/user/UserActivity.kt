@@ -518,7 +518,7 @@ fun AddItem(
         modifier = Modifier
             .clickable { navController.navigate(screen.route) }
             .background(Color.Red)
-            .padding(15.dp)
+            .padding(25.dp)
     ) {
         Icon(
             painterResource(id = screen.icon),
