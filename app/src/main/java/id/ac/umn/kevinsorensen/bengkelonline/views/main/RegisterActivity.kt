@@ -128,11 +128,11 @@ fun WrapperFunction(
 fun RegisterUser(
     password: String = "",
     inputPasswordVisibility: Boolean = false,
-    togglePasswordVisibility: () -> Unit,
     username: String = "",
     email: String = "",
     confirmPassword: String = "",
 
+    togglePasswordVisibility: () -> Unit,
     onBackButton: () -> Unit = {},
     onUsernameChange: (String) -> Unit = {},
     onEmailChange: (String) -> Unit = {},

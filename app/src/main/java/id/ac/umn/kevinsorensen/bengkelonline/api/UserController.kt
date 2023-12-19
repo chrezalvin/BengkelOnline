@@ -24,6 +24,106 @@ class UserController(private val database: Firebase){
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
+    fun getUserFromPhoneNumber(
+        phoneNumber: String,
+        password: String,
+        onSuccess: (User?) -> Unit = {},
+        onFailure: (reason: String) -> Unit = {}
+    ){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("phoneNumber", phoneNumber)
+
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("Incorrect Username or Password");
+                    return@addOnSuccessListener;
+                }
+
+                val document = it.documents[0];
+                try {
+                    val user = dataValidation(document);
+
+                    if(user.password != hash(password)){
+                        onFailure("Incorrect Username or Password");
+                    }
+                    else {
+                        Log.d(TAG, "Got user data: ${user}");
+                        onSuccess(user);
+                    }
+                }
+                catch (_: Exception){
+                    onFailure("Incorrect Username or Password");
+                }
+            }
+            .addOnFailureListener{
+                throw it;
+            }
+    }
+
+    fun getUserFromId(id: String, callback: (User?) -> Unit){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", id)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    callback(null);
+                    return@addOnSuccessListener;
+                }
+
+                val document = it.documents[0];
+                try {
+                    val user = dataValidation(document);
+
+                    Log.d(TAG, "Got user data: ${user}");
+                    callback(user);
+                }
+                catch (_: Exception){
+                    callback(null);
+                }
+            }
+            .addOnFailureListener{
+                throw it;
+            }
+    }
+
+    fun changePasswordFromPhoneNumber(
+        phoneNumber: String,
+        newPassword: String,
+        onSuccess: () -> Unit = {},
+        onFailure: (reason: String) -> Unit = {}){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("phoneNumber", phoneNumber)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("User not found");
+                    return@addOnSuccessListener;
+                }
+
+                val document = it.documents[0];
+                try {
+                    val user = dataValidation(document);
+
+                    Log.d(TAG, "Got user data: $user");
+
+                    document.reference.update("password", hash(newPassword))
+                        .addOnSuccessListener {
+                            onSuccess();
+                        }
+                        .addOnFailureListener {
+                            ex -> onFailure(ex.message.toString());
+                        }
+                }
+                catch (_: Exception){
+                    onFailure("User not found");
+                }
+            }
+            .addOnFailureListener{
+                onFailure(it.message.toString());
+            }
+    }
+
     fun changePassword(
         usernameOrEmail: String,
         newPassword: String,

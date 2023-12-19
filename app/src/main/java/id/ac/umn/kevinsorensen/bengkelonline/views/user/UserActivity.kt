@@ -109,7 +109,6 @@ class UserActivity : ComponentActivity() {
     private var permissions = arrayOf(
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
         android.Manifest.permission.ACCESS_FINE_LOCATION,
-        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
         android.Manifest.permission.INTERNET
     )
 
@@ -248,6 +247,7 @@ class UserActivity : ComponentActivity() {
                     BottomNavigation(navController = navController)
                 },
                 content = {
+                    
                     NavHost(
                         navController = navController,
                         startDestination = BottomNavItem.Maps.route,

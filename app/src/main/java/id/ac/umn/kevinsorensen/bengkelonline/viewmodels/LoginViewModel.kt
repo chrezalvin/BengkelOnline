@@ -30,6 +30,9 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
     var inputPassword by mutableStateOf("")
         private set;
 
+    var inputPhoneNumber by mutableStateOf("")
+        private set;
+
     var passwordVisibility by mutableStateOf(false)
         private set;
 
@@ -75,6 +78,10 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
         inputEmailOrUsername = emailOrUsername;
     }
 
+    fun updatePhoneNumber(phoneNumber: String) {
+        inputPhoneNumber = phoneNumber;
+    }
+
     fun togglePasswordVisibility() {
         passwordVisibility = !passwordVisibility;
     }
@@ -88,6 +95,7 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
     private fun resetInputs() {
         inputPassword = "";
         inputEmailOrUsername = "";
+        inputPhoneNumber = "";
     }
 
     private fun passwordChecking(){
@@ -96,6 +104,15 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
         }
         else{
             _uiState.value = _uiState.value.copy(passwordError = "");
+        }
+    }
+
+    private fun phoneNumberChecking(){
+        if(inputPhoneNumber.isEmpty()){
+            _uiState.value = _uiState.value.copy(emailOrUsernameError = "Please fill out this field");
+        }
+        else{
+            _uiState.value = _uiState.value.copy(emailOrUsernameError = "");
         }
     }
 
@@ -121,6 +138,19 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
         }
     }
 
+    private fun validateInputsPhone(onSuccess: () -> Unit){
+        passwordChecking();
+        phoneNumberChecking();
+
+        if(
+            _uiState.value.emailOrUsernameError.isEmpty() &&
+            _uiState.value.passwordError.isEmpty()
+        ){
+            _uiState.value = _uiState.value.copy(error = "", emailOrUsernameError = "", passwordError = "");
+            onSuccess();
+        }
+    }
+
     fun login() {
         validateInputs {
             userController.getUser(inputEmailOrUsername, inputPassword) {
@@ -134,6 +164,31 @@ class LoginViewModel(private val settingsStore: SettingsStore, onUserCached: (Us
                     }
                 }
             }
+        }
+    }
+
+    fun loginPhone(){
+        validateInputsPhone {
+            userController.getUserFromPhoneNumber(
+                inputPhoneNumber,
+                inputPassword,
+                onSuccess = { user ->
+                    if(user != null){
+                        resetInputs();
+                        // cache the user id
+                        saveUserId(user.id);
+                    }
+                    else{
+                        _uiState.update { loginState ->
+                            loginState.copy(error = "Incorrect phone number or password!");
+                        }
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update { loginState ->
+                        loginState.copy(error = error);
+                    }
+                })
         }
     }
 

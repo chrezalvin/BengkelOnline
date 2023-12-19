@@ -122,8 +122,8 @@ class ComplaintController(db: Firebase) {
     ) {
 
         Log.d(TAG, "getNearbyComplaint: $long, $lat")
-        // radius of 2km from the center
-        val radius = 4;
+        // radius of 10km from the center
+        val radius = 10/111;
         val minLong = long - radius;
         val maxLong = long + radius;
 
