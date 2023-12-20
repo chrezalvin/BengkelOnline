@@ -73,6 +73,7 @@ class ProductController(private val database: FirebaseFirestore) {
             }
             .addOnFailureListener{
                 throw it;
+
             }
     }
 

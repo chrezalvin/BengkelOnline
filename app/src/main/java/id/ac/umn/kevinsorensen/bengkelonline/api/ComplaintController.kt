@@ -1,0 +1,213 @@
+package id.ac.umn.kevinsorensen.bengkelonline.api
+
+import android.net.Uri
+import android.util.Log
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import id.ac.umn.kevinsorensen.bengkelonline.datamodel.Complaint
+import java.util.UUID
+
+class ComplaintController(db: Firebase) {
+    private val firestore = db.firestore;
+
+    private fun dataValidation(data: DocumentSnapshot): Complaint{
+        Log.d(TAG, "Got complaint data: ${data.toString()}");
+        val id = data.get("id") as String? ?: "";
+        val userId = data.get("userId") as String? ?: "";
+        val long = (data.get("long") as Number).toFloat();
+        val lat = (data.get("lat") as Number).toFloat();
+        val description = data.get("description") as String? ?: "";
+        val photoUris = data.get("photoUris") as List<String>? ?: listOf();
+        val videoUri = data.get("videoUri") as String? ?: "";
+        val date = data.get("date") as Timestamp? ?: Timestamp.now();
+/*        val status = data.get("status") as String?;
+        val merchantId = data.get("merchantId") as String?;
+*/
+
+
+        return Complaint(
+            id,
+            userId,
+            long,
+            lat,
+            description,
+            photoUris.map { uri -> Uri.parse(uri) },
+            Uri.parse(videoUri),
+            date,
+/*            status,
+            merchantId,*/
+        );
+    }
+
+    fun submitComplaint(
+        userId: String,
+        long: Float,
+        lat: Float,
+        description: String = "",
+        photoUris: List<String>,
+        onSuccess: (complaintId: String?) -> Unit = {},
+    ) {
+        val complaint = Complaint(
+            UUID.randomUUID().toString(),
+            userId,
+            long,
+            lat,
+            description,
+            photoUris.map { uri -> Uri.parse(uri) },
+            Uri.parse(""),
+        );
+
+        firestore.collection(COLLECTION_NAME)
+            .add(complaint)
+            .addOnSuccessListener {
+                onSuccess(complaint.id);
+            }
+            .addOnFailureListener { ex ->
+                onSuccess(null);
+            }
+    }
+
+    fun getComplaintsFromUser(
+        userId: String,
+        onSuccess: (List<Complaint>) -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("Complaint not found");
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaints = it.documents.map { document -> dataValidation(document) };
+                    onSuccess(complaints);
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+    }
+
+    fun getAllComplaints(
+        onSuccess: (List<Complaint>) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        firestore.collection(COLLECTION_NAME)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("Complaint not found");
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaints = it.documents.map { document -> dataValidation(document) };
+                    onSuccess(complaints);
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+    }
+
+    fun getNearbyComplaint(
+        long: Float,
+        lat: Float,
+        onSuccess: (List<Complaint>) -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+
+        Log.d(TAG, "getNearbyComplaint: $long, $lat")
+        // radius of 10km from the center
+        val radius = 10/111;
+        val minLong = long - radius;
+        val maxLong = long + radius;
+
+        val minLat = lat - radius;
+        val maxLat = lat + radius;
+
+        getAllComplaints(
+            onSuccess = {
+                val complaints = it.filter { complaint ->
+                    // check
+                    Log.d(TAG, "getNearbyComplaint: (${complaint.long}, ${complaint.lat})")
+                    Log.d(TAG, "expectedLocation: ($minLong - $maxLong), ($minLat - $maxLat)")
+                    complaint.long in minLong..maxLong && complaint.lat in minLat..maxLat
+                }
+                onSuccess(complaints);
+            },
+            onFailure = { ex ->
+                onFailure(ex);
+            }
+        )
+    }
+
+    fun getComplaintById(
+        complaintId: String,
+        onSuccess: (Complaint?) -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", complaintId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    onFailure("Complaint not found");
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaint = dataValidation(it.documents[0]);
+                    onSuccess(complaint);
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+    }
+
+    fun setComplaintStatus(
+        complaintId: String,
+        merchantId: String,
+        status: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit = {}
+    ){
+        firestore.collection(COLLECTION_NAME)
+            .whereEqualTo("id", complaintId)
+            .get()
+            .addOnSuccessListener {
+                if(it.isEmpty){
+                    return@addOnSuccessListener;
+                }
+                else {
+                    val complaint = it.documents[0];
+                    complaint.reference.update("status", status)
+                        .addOnSuccessListener {
+                            complaint.reference.update("merchantId", merchantId)
+                                .addOnSuccessListener {
+                                    onSuccess();
+                                }
+                                .addOnFailureListener {
+                                    ex -> onFailure(ex.message.toString());
+                                }
+                        }
+                        .addOnFailureListener {
+                            ex -> onFailure(ex.message.toString());
+                        }
+                }
+            }
+            .addOnFailureListener {
+                ex -> onFailure(ex.message.toString());
+            }
+
+    }
+
+    companion object {
+        const val COLLECTION_NAME: String = "complaints"
+        const val TAG: String = "Complaint Controller"
+    }
+}

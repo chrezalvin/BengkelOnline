@@ -6,7 +6,9 @@ data class User(
     val email: String,
     val password: String,
     val role: String = "user",
-    val address: Address? = null,
     val phoneNumber: String? = null,
     val photo: String? = null,
+    val long: Float = 0.0f,
+    val lat: Float = 0.0f,
+    val complaintId: String? = null,
 )

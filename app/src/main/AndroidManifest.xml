@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
 
     <application
         android:allowBackup="true"
@@ -15,12 +17,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BengkelOnline"
+        android:name=".SettingsApplication"
         tools:targetApi="31">
+        <activity
+            android:name=".views.user.HistoryActivity"
+            android:exported="false"
+            android:label="@string/title_activity_history"
+            android:theme="@style/Theme.BengkelOnline" />
+        <activity
+            android:name=".views.main.ForgotPassActivity"
+            android:exported="false"
+            android:label="@string/title_activity_forgot_pass"
+            android:theme="@style/Theme.BengkelOnline" />
+        <activity
+            android:name=".views.main.RegisterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.BengkelOnline" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyATn6B2w3hp-l6oFZU7bBiUZqY9Lzs-1PE" />
+
         <activity
-            android:name=".MainActivity"
+            android:name=".views.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.BengkelOnline"
@@ -31,9 +51,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeUser"></activity>
-        <activity android:name=".HomeMerchant"></activity>
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".views.user.UserActivity" />
+        <activity android:name=".views.merchant.HomeMerchant" />
+        <activity android:name=".views.user.ProfileActivity" />
+
+
     </application>
 
 </manifest>

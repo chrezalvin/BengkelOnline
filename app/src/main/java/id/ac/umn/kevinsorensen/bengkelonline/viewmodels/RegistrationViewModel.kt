@@ -1,22 +1,20 @@
 package id.ac.umn.kevinsorensen.bengkelonline.viewmodels
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import id.ac.umn.kevinsorensen.bengkelonline.api.UserController
-import id.ac.umn.kevinsorensen.bengkelonline.datamodel.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class RegistrationUiState(
-    val error: String? = null,
-    val usernameError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
+    val error: String = "",
+    val usernameError: String = "",
+    val emailError: String = "",
+    val passwordError: String = "",
+    val confirmPasswordError: String = "",
 )
 class RegistrationViewModel(db: Firebase): ViewModel() {
     private val _uiState = MutableStateFlow<RegistrationUiState>(RegistrationUiState());
@@ -73,48 +71,56 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
         inputPasswordVisibility = false;
     }
 
-    fun validateUsername(){
+    private fun validateUsername(){
         if(inputUsername.isEmpty())
             _uiState.value = _uiState.value.copy(usernameError = "Please fill out the username first!");
         else
-            _uiState.value = _uiState.value.copy(usernameError = null);
+            _uiState.value = _uiState.value.copy(usernameError = "");
     }
 
-    fun validateEmail(){
+    private fun validateEmail(){
         if(inputEmail.isEmpty())
             _uiState.value = _uiState.value.copy(emailError = "Please fill out the email first!");
         else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches())
             _uiState.value = _uiState.value.copy(emailError = "Please fill out the email correctly!");
         else
-            _uiState.value = _uiState.value.copy(emailError = null);
+            _uiState.value = _uiState.value.copy(emailError = "");
     }
 
-    fun validatePassword(){
+    private fun validatePassword(){
         if(inputPassword.isEmpty())
             _uiState.value = _uiState.value.copy(passwordError = "Please fill out the password first!");
         else
-            _uiState.value = _uiState.value.copy(passwordError = null);
+            _uiState.value = _uiState.value.copy(passwordError = "");
     }
 
-    fun validateConfirmPassword(){
+    private fun validateConfirmPassword(){
         if(inputConfirmPassword.isEmpty())
             _uiState.value = _uiState.value.copy(confirmPasswordError = "Please fill out the confirm password first!");
         else if(inputConfirmPassword != inputPassword)
             _uiState.value = _uiState.value.copy(confirmPasswordError = "Confirm password does not match!");
         else
-            _uiState.value = _uiState.value.copy(confirmPasswordError = null);
+            _uiState.value = _uiState.value.copy(confirmPasswordError = "");
     }
 
-    fun register(onSuccessRegistration: () -> Unit) {
+    private fun validateInputs(onSuccess: () -> Unit) {
         validateUsername();
         validateEmail();
         validatePassword();
         validateConfirmPassword();
 
-        if (_uiState.value.usernameError != null || _uiState.value.emailError != null || _uiState.value.passwordError != null || _uiState.value.confirmPasswordError != null)
-            return;
-        else {
-            val role = if (isMerchant) "merchant" else "user";
+        if (
+            _uiState.value.usernameError.isEmpty() &&
+            _uiState.value.emailError.isEmpty() &&
+            _uiState.value.passwordError.isEmpty() &&
+            _uiState.value.confirmPasswordError.isEmpty()
+        )
+            onSuccess();
+    }
+
+    fun register(userRole: String = "user", onSuccessRegistration: () -> Unit) {
+        validateInputs(){
+            val role = if (userRole == "merchant") "merchant" else "user";
             userController.addUser(
                 inputEmail,
                 inputUsername,
@@ -123,9 +129,10 @@ class RegistrationViewModel(db: Firebase): ViewModel() {
             ) { success, message ->
                 if (success) {
                     resetInputs();
-                    _uiState.value = _uiState.value.copy(error = null);
+                    _uiState.value = _uiState.value.copy(error = "");
+                    onSuccessRegistration();
                 } else
-                    _uiState.value = _uiState.value.copy(error = message);
+                    _uiState.value = _uiState.value.copy(error = message ?: "");
             }
         }
     }

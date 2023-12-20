@@ -4,4 +4,18 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="password_requirement_characters">At least 8 characters</string>
+    <string name="password_requirement_capital">At least 1 upper-case letter</string>
+    <string name="password_requirement_digit">At least 1 digit</string>
+    <string name="requirement_capital" />
+    <string name="requirement_digit" />
+    <string name="requirement_characters" />
+    <string name="placeholder_search">Search</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_forgot_pass">ForgotPassActivity</string>
+    <string name="title_activity_login_merchant">LoginMerchantActivity</string>
+    <string name="title_activity_register_merchant">RegisterMerchantActivity</string>
+    <string name="title_activity_history">HistoryActivity</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_phone">PhoneActivity</string>
 </resources>
